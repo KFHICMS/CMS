@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Attendance - {{ $event->title }}</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #eef7f1;
+            color: #183b2a;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: min(1100px, 94%);
+            margin: 35px auto;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: #2e7d32;
+            font-weight: 600;
+        }
+
+        .header {
+            background: white;
+            padding: 25px;
+            border-radius: 18px;
+            box-shadow: 0 8px 25px rgba(46, 125, 50, 0.08);
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            color: #205c35;
+            margin-bottom: 7px;
+        }
+
+        .header p {
+            color: #6b8174;
+        }
+
+        .scanner-card {
+            background: white;
+            border-radius: 18px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(46, 125, 50, 0.08);
+            margin-bottom: 25px;
+        }
+
+        .scanner-icon {
+            font-size: 55px;
+            margin-bottom: 15px;
+        }
+
+        .scanner-card h2 {
+            color: #205c35;
+            margin-bottom: 8px;
+        }
+
+        .scanner-card p {
+            color: #6b8174;
+            margin-bottom: 25px;
+        }
+
+        .token-form {
+            max-width: 600px;
+            margin: auto;
+        }
+
+        .token-form input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #d4e5d9;
+            border-radius: 10px;
+            font-size: 15px;
+            margin-bottom: 12px;
+            outline: none;
+        }
+
+        .token-form input:focus {
+            border-color: #4caf50;
+        }
+
+        .scan-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: #2e7d32;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .scan-btn:hover {
+            background: #256b29;
+        }
+
+        .result {
+            max-width: 600px;
+            margin: 20px auto 0;
+            padding: 18px;
+            border-radius: 12px;
+            display: none;
+        }
+
+        .result.success {
+            display: block;
+            background: #e7f6ea;
+            border: 1px solid #b8dfbf;
+        }
+
+        .result.error {
+            display: block;
+            background: #fff0f0;
+            border: 1px solid #efc1c1;
+        }
+
+        .child-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #205c35;
+            margin-bottom: 5px;
+        }
+
+        .child-code {
+            color: #607568;
+        }
+
+        .attendance-section {
+            background: white;
+            border-radius: 18px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(46, 125, 50, 0.08);
+        }
+
+        .attendance-section h2 {
+            color: #205c35;
+            margin-bottom: 18px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 13px;
+            text-align: left;
+            border-bottom: 1px solid #e5eee8;
+        }
+
+        th {
+            background: #f1f8f3;
+            color: #42634d;
+            font-size: 13px;
+        }
+
+        td {
+            color: #4f6658;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background: #e4f4e7;
+            color: #287332;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 30px;
+            color: #74877a;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 20px auto;
+            }
+
+            .scanner-card,
+            .header,
+            .attendance-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="top-bar">
+        <a href="{{ route('events.show', $event) }}" class="back-link">
+            ← Back to Event
+        </a>
+    </div>
+
+    <div class="header">
+        <h1>📁 Attendance</h1>
+
+        <p>
+            {{ $event->title }}
+            • {{ $event->event_code }}
+        </p>
+    </div>
+
+
+    <div class="scanner-card">
+
+        <div class="scanner-icon">
+            📷
+        </div>
+
+        <h2>QR Attendance Scanner</h2>
+
+        <p>
+            Scan a child's secure QR code to mark attendance.
+        </p>
+        <div id="reader" style="max-width: 500px; margin: 20px auto;"></div>
+
+        <form id="scanForm" class="token-form">
+
+            @csrf
+
+            <input
+                type="text"
+                id="token"
+                name="token"
+                placeholder="Enter QR token for testing"
+                autocomplete="off"
+                required
+            >
+
+            <button type="submit" class="scan-btn">
+                Mark Attendance
+            </button>
+
+        </form>
+
+        <div id="result" class="result"></div>
+
+    </div>
+
+
+    <div class="attendance-section">
+
+        <h2>
+            Attendance List
+            <span style="font-size:14px;color:#718579;">
+                ({{ $attendances->count() }})
+            </span>
+        </h2>
+
+        @if($attendances->count())
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Child Code</th>
+                            <th>Child Name</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach($attendances as $attendance)
+
+                            <tr>
+
+                                <td>
+                                    {{ $loop->iteration }}
+                                </td>
+
+                                <td>
+                                    {{ $attendance->child->child_code }}
+                                </td>
+
+                                <td>
+                                    {{ trim(
+                                        $attendance->child->first_name . ' ' .
+                                        $attendance->child->middle_name . ' ' .
+                                        $attendance->child->last_name
+                                    ) }}
+                                </td>
+
+                                <td>
+                                    {{ $attendance->attendance_time?->format('h:i A') }}
+                                </td>
+
+                                <td>
+                                    <span class="status">
+                                        {{ ucfirst($attendance->status) }}
+                                    </span>
+                                </td>
+
+                            </tr>
+
+                        @endforeach
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        @else
+
+            <div class="empty">
+                No attendance has been recorded for this event yet.
+            </div>
+
+        @endif
+
+    </div>
+
+</div>
+
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script>
+
+    const form = document.getElementById('scanForm');
+    const result = document.getElementById('result');
+    const tokenInput = document.getElementById('token');
+
+    async function processToken(token) {
+
+        result.className = 'result';
+        result.innerHTML = '';
+
+        try {
+
+            const response = await fetch(
+                "{{ route('events.attendance.scan', $event) }}",
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN':
+                            document.querySelector(
+                                'input[name="_token"]'
+                            ).value
+                    },
+
+                    body: JSON.stringify({
+                        token: token
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            if (data.success) {
+
+                result.className = 'result success';
+
+                result.innerHTML = `
+                    <div class="child-name">
+                        ${data.child.name}
+                    </div>
+
+                    <div class="child-code">
+                        Child Code: ${data.child.child_code}
+                    </div>
+
+                    <div style="margin-top:8px;">
+                        ✓ ${data.message}
+                    </div>
+                `;
+
+                tokenInput.value = '';
+
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1200);
+
+            } else {
+
+                result.className = 'result error';
+
+                result.innerHTML = `
+                    <strong>${data.message}</strong>
+                `;
+            }
+
+        } catch (error) {
+
+            result.className = 'result error';
+
+            result.innerHTML = `
+                <strong>
+                    Something went wrong while processing the QR code.
+                </strong>
+            `;
+        }
+    }
+
+
+    form.addEventListener('submit', function (event) {
+
+        event.preventDefault();
+
+        const token = tokenInput.value.trim();
+
+        if (!token) {
+            return;
+        }
+
+        processToken(token);
+    });
+
+
+    function onScanSuccess(decodedText) {
+
+        let token = decodedText;
+
+        const marker = '/qr/scan/';
+
+        if (decodedText.includes(marker)) {
+            token = decodedText.split(marker)[1];
+        }
+
+        processToken(token);
+    }
+
+
+    function onScanFailure(error) {
+        // Ignore normal scanning failures.
+    }
+
+
+    const html5QrCode = new Html5Qrcode("reader");
+
+    Html5Qrcode.getCameras()
+        .then(cameras => {
+
+            if (cameras && cameras.length) {
+
+                const cameraId = cameras[0].id;
+
+                html5QrCode.start(
+                    cameraId,
+                    {
+                        fps: 10,
+                        qrbox: {
+                            width: 250,
+                            height: 250
+                        }
+                    },
+                    onScanSuccess,
+                    onScanFailure
+                );
+
+            }
+        })
+        .catch(error => {
+
+            console.log(
+                'Camera access unavailable:',
+                error
+            );
+
+        });
+
+</script>
+
+</body>
+</html>
