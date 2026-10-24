@@ -396,6 +396,10 @@
     Follow-ups
 </a>
 
+<a href="{{ route('admin_submissions.index') }}">
+    Questionnaire Submissions
+</a>
+
 <div class="nav-title" style="margin-top: 25px;">
     System
 </div>

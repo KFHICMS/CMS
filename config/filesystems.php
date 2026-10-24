@@ -15,6 +15,14 @@ return [
 
     'default' => env('FILESYSTEM_DISK', 'local'),
 
+        /*
+    |--------------------------------------------------------------------------
+    | Disk for photographs uploaded through public enumerator links
+    |--------------------------------------------------------------------------
+    | Must be a PRIVATE disk (never "public"). Switch to an S3 disk later in .env.
+    */
+    'submission_photo_disk' => env('SUBMISSION_PHOTO_DISK', 'local'),
+
     /*
     |--------------------------------------------------------------------------
     | Filesystem Disks

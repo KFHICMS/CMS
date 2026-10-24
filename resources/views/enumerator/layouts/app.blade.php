@@ -61,6 +61,7 @@
         <p class="role">Enumerator workspace</p>
         <nav aria-label="Enumerator navigation">
             <a @class(['active' => ($active ?? 'dashboard') === 'dashboard']) href="{{ route('enumerator.dashboard') }}">Dashboard</a>
+            <a @class(['active' => ($active ?? 'dashboard') === 'submissions']) href="{{ route('enumerator.submissions.index') }}">My Submissions</a>
         </nav>
         <form class="logout" method="POST" action="{{ route('logout') }}">
             @csrf
@@ -87,6 +88,7 @@
             </div>
         </header>
         @if (session('success')) <p class="card" role="status">{{ session('success') }}</p> @endif
+        @if (session('error')) <p class="notice" role="alert">{{ session('error') }}</p> @endif
         @yield('content')
     </main>
 </div>

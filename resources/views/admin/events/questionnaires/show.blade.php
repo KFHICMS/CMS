@@ -328,7 +328,171 @@
         </div>
 
     </div>
+    
+        <div class="section" id="invitations">
+        <style>
+            .inv-box { margin: 12px 0; padding: 14px; border: 1px solid #c9dfce; border-radius: 10px; background: #f6fbf7; }
+            .inv-box input[type=text] { width: 100%; padding: 10px; border: 1px solid #bdcbbf; border-radius: 8px; font: inherit; }
+            .inv-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin: 12px 0; }
+            .inv-row label { display: block; font-size: 13px; margin-bottom: 4px; }
+            .inv-row select, .inv-row input[type=number] { padding: 9px; border: 1px solid #bdcbbf; border-radius: 8px; font: inherit; }
+            .inv-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+            .inv-table th, .inv-table td { padding: 10px 8px; text-align: left; border-bottom: 1px solid #e3ede6; vertical-align: top; }
+            .inv-status { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 12px; }
+            .inv-active { background: #dff3e3; color: #1d6b34; }
+            .inv-expired { background: #fff3d6; color: #8a6200; }
+            .inv-revoked { background: #f8dcdc; color: #9a2a2a; }
+            .inv-warn { padding: 10px 12px; border-radius: 8px; background: #fff7e0; border: 1px solid #f0dfa6; margin: 10px 0; }
+            .inv-inline { display: inline; }
+            .inv-scroll { overflow-x: auto; }
+        </style>
 
+        <div class="section-title">
+            <h2>Enumerator Invitations</h2>
+        </div>
+
+        <p>Generate a link for enumerators to open this questionnaire without logging in. Only this event and questionnaire can be reached through the link.</p>
+
+        @if (session('error'))
+            <p class="inv-warn" role="alert">{{ session('error') }}</p>
+        @endif
+        @if (session('success'))
+            <p role="status">{{ session('success') }}</p>
+        @endif
+
+        @if (session('new_invitation_url'))
+            <div class="inv-box" role="status">
+                <strong>New link (shown only once)</strong>
+                <p>Copy it and share it, for example on WhatsApp. You can also copy it again later from the table below.</p>
+                <input type="text" id="invite-url" value="{{ session('new_invitation_url') }}" readonly>
+                <p><button type="button" class="btn" id="copy-invite">Copy link</button> <span id="copy-status" role="status"></span></p>
+            </div>
+        @endif
+
+        @if ($questionnaire->status !== 'published')
+            <p class="inv-warn">Publish this questionnaire to generate an enumerator link.</p>
+        @else
+            @if (! $event->enable_questionnaires)
+                <p class="inv-warn">Questionnaires are not enabled for this event, so links will not open until you enable them.</p>
+            @elseif ($event->collectionState() !== 'open')
+                <p class="inv-warn">This event is currently {{ $event->collectionState() }}, so links will not accept responses until it is open.</p>
+            @endif
+
+            <form method="POST" action="{{ route('events.questionnaires.invitations.store', [$event, $questionnaire]) }}">
+                @csrf
+                <div class="inv-row">
+                    <div>
+                        <label for="expires_in_days">Link valid for</label>
+                        <select id="expires_in_days" name="expires_in_days">
+                            @foreach ([1 => '1 day', 3 => '3 days', 7 => '7 days', 14 => '14 days', 30 => '30 days'] as $days => $label)
+                                <option value="{{ $days }}" @selected($days === 7)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label for="max_submissions">Maximum submissions</label>
+                        <input type="number" id="max_submissions" name="max_submissions" min="1" max="1000" value="100">
+                    </div>
+                    <div>
+                        <button type="submit" class="btn">Generate Enumerator Link</button>
+                    </div>
+                </div>
+                @error('expires_in_days') <p class="inv-warn">{{ $message }}</p> @enderror
+                @error('max_submissions') <p class="inv-warn">{{ $message }}</p> @enderror
+            </form>
+        @endif
+
+        @php($invitations = $questionnaire->invitations()->with('creator:id,name')->latest()->limit(20)->get())
+
+        @if ($invitations->isEmpty())
+            <p>No invitation links have been generated for this questionnaire yet.</p>
+        @else
+            <div class="inv-scroll">
+                <table class="inv-table">
+                    <thead>
+                    <tr><th>Link</th><th>Status</th><th>Created</th><th>Expires</th><th>Max</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                    @foreach ($invitations as $invitation)
+                        @php($status = $invitation->status())
+                        <tr>
+                            <td>
+                                …{{ $invitation->token_hint }}
+                                @php($shareUrl = $status === 'active' ? $invitation->shareUrl() : null)
+                                @if ($shareUrl)
+                                    <div style="margin-top:6px">
+                                        <button type="button" class="btn btn-secondary copy-link" data-url="{{ $shareUrl }}">Copy link</button>
+                                        <a href="{{ $shareUrl }}" target="_blank" rel="noopener noreferrer">Open</a>
+                                    </div>
+                                @elseif ($status === 'active')
+                                    <div><small>Created before copying was available. Use Replace to get a copyable link.</small></div>
+                                @endif
+                            </td>
+                            <td><span class="inv-status inv-{{ $status }}">{{ ucfirst($status) }}</span></td>
+                            <td>{{ $invitation->created_at->format('d M Y H:i') }}<br><small>{{ $invitation->creator?->name }}</small></td>
+                            <td>{{ $invitation->expires_at->format('d M Y H:i') }}</td>
+                            <td>{{ $invitation->max_submissions }}</td>
+                            <td>
+                                @if ($status !== 'revoked')
+                                    <form class="inv-inline" method="POST"
+                                          action="{{ route('events.questionnaires.invitations.revoke', [$event, $questionnaire, $invitation]) }}"
+                                          onsubmit="return confirm('Revoke this link? Enumerators will no longer be able to use it.');">
+                                        @csrf
+                                        <button type="submit" class="btn btn-secondary">Revoke</button>
+                                    </form>
+                                    @if ($questionnaire->status === 'published')
+                                        <form class="inv-inline" method="POST"
+                                              action="{{ route('events.questionnaires.invitations.replace', [$event, $questionnaire, $invitation]) }}"
+                                              onsubmit="return confirm('Replace this link? The old link will stop working and a new one will be generated.');">
+                                            @csrf
+                                            <input type="hidden" name="expires_in_days" value="7">
+                                            <input type="hidden" name="max_submissions" value="{{ $invitation->max_submissions }}">
+                                            <button type="submit" class="btn btn-secondary">Replace</button>
+                                        </form>
+                                    @endif
+                                @else
+                                    —
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+
+        <script>
+            document.getElementById('copy-invite')?.addEventListener('click', async () => {
+                const input = document.getElementById('invite-url');
+                const status = document.getElementById('copy-status');
+                try {
+                    await navigator.clipboard.writeText(input.value);
+                    status.textContent = 'Copied.';
+                } catch (e) {
+                    input.select();
+                    status.textContent = document.execCommand('copy') ? 'Copied.' : 'Press Ctrl+C to copy.';
+                }
+            });
+            document.querySelectorAll('.copy-link').forEach((button) => {
+                button.addEventListener('click', async () => {
+                    const url = button.dataset.url;
+                    const original = button.textContent;
+                    try {
+                        await navigator.clipboard.writeText(url);
+                    } catch (e) {
+                        const box = document.createElement('textarea');
+                        box.value = url;
+                        document.body.appendChild(box);
+                        box.select();
+                        try { document.execCommand('copy'); } catch (err) { window.prompt('Copy this link:', url); }
+                        document.body.removeChild(box);
+                    }
+                    button.textContent = 'Copied';
+                    setTimeout(() => { button.textContent = original; }, 1500);
+                });
+            });
+        </script>
+    </div>
     <div class="section">
 
         <div class="section-title">

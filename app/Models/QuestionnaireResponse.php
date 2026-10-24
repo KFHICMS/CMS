@@ -17,6 +17,12 @@ class QuestionnaireResponse extends Model
         'submitted_by',
         'submitted_at',
         'response_uuid',
+        'invitation_id',
+        'respondent_name',
+        'idempotency_key',
+        'review_status',
+        'photo_path',
+        'photo_disk',
     ];
 
     protected function casts(): array
@@ -44,5 +50,10 @@ class QuestionnaireResponse extends Model
     public function answers(): HasMany
     {
         return $this->hasMany(QuestionnaireAnswer::class, 'response_id');
+    }
+
+    public function submitter(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'submitted_by');
     }
 }

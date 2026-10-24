@@ -29,6 +29,13 @@ use App\Http\Controllers\Admin\FollowUpController as AdminFollowUpController;
 use App\Http\Controllers\Enumerator\DashboardController as EnumeratorDashboardController;
 use App\Http\Controllers\Enumerator\EventController as EnumeratorEventController;
 use App\Http\Controllers\Enumerator\AttendanceController as EnumeratorAttendanceController;
+use App\Http\Controllers\Enumerator\QuestionnaireController as EnumeratorQuestionnaireController;
+use App\Http\Controllers\Enumerator\SubmissionController as EnumeratorSubmissionController;
+use App\Http\Controllers\Admin\EnumeratorInvitationController;
+
+use App\Http\Controllers\PublicInvitationController;
+use App\Http\Middleware\PublicInvitationHeaders;
+use App\Http\Controllers\Admin\QuestionnaireSubmissionController;
 /*
 |--------------------------------------------------------------------------
 | Public Routes
@@ -137,6 +144,11 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::put('/admin/events/{event}/enumerators', [EventEnumeratorController::class, 'update'])
         ->name('events.enumerators.update');
 
+
+    /*
+|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------
+*/
     /*
     |--------------------------------------------------------------------------
     | Admin QR Code
@@ -213,7 +225,61 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         '/admin/events/{event}/questionnaires/{questionnaire}/questions/{question}',
         [\App\Http\Controllers\Admin\QuestionController::class, 'destroy']
     )->name('events.questionnaires.questions.destroy');
+
+    Route::post(
+        '/admin/events/{event}/questionnaires/{questionnaire}/invitations',
+        [EnumeratorInvitationController::class, 'store']
+    )->name('events.questionnaires.invitations.store');
+
+    Route::post(
+        '/admin/events/{event}/questionnaires/{questionnaire}/invitations/{invitation}/revoke',
+        [EnumeratorInvitationController::class, 'revoke']
+    )->name('events.questionnaires.invitations.revoke');
+
+    Route::post(
+        '/admin/events/{event}/questionnaires/{questionnaire}/invitations/{invitation}/replace',
+        [EnumeratorInvitationController::class, 'replace']
+    )->name('events.questionnaires.invitations.replace');
+
+    Route::get('/admin/questionnaire-submissions', [QuestionnaireSubmissionController::class, 'index'])
+        ->name('admin_submissions.index');
+    Route::get('/admin/questionnaire-submissions/{submission}', [QuestionnaireSubmissionController::class, 'show'])
+        ->name('admin_submissions.show');
+    Route::patch('/admin/questionnaire-submissions/{submission}/review', [QuestionnaireSubmissionController::class, 'review'])
+        ->name('admin_submissions.review');
+
+    Route::get('/admin/questionnaire-submissions/{submission}/photo', [QuestionnaireSubmissionController::class, 'photo'])
+        ->name('admin_submissions.photo');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Public Enumerator Invitation Links (no login; secret link only)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('join')
+    ->middleware([PublicInvitationHeaders::class])
+    ->name('public.invitations.')
+    ->group(function () {
+        Route::get('/{token}', [PublicInvitationController::class, 'show'])
+            ->where('token', '[A-Za-z0-9_-]{43}')
+            ->middleware('throttle:public-invitation-view')
+            ->name('show');
+
+        Route::post('/{token}', [PublicInvitationController::class, 'store'])
+            ->where('token', '[A-Za-z0-9_-]{43}')
+            ->middleware('throttle:public-invitation-submit')
+            ->name('store');
+
+        Route::post('/{token}/identify', [PublicInvitationController::class, 'identify'])
+            ->middleware('throttle:public-invitation-identify')
+            ->name('identify');
+
+        Route::get('/{token}/thanks', [PublicInvitationController::class, 'thanks'])
+            ->where('token', '[A-Za-z0-9_-]{43}')
+            ->middleware('throttle:public-invitation-view')
+            ->name('thanks');
+    });
 
 
 /*
@@ -383,14 +449,21 @@ Route::middleware(['auth', 'role:enumerator'])
             ->name('dashboard');
         Route::get('/events/{event}', [EnumeratorEventController::class, 'show'])
             ->name('events.show');
-        Route::post('/events/{event}/questionnaires/{questionnaire}/respond', [EnumeratorEventController::class, 'startQuestionnaire'])
-                ->name('events.questionnaires.start');
     Route::get('/events/{event}/attendance', [EnumeratorAttendanceController::class, 'index'])
             ->name('events.attendance.index');
     Route::post('/events/{event}/attendance/identify', [EnumeratorAttendanceController::class, 'identify'])
             ->name('events.attendance.identify');
     Route::post('/events/{event}/attendance', [EnumeratorAttendanceController::class, 'store'])
             ->name('events.attendance.store');
+    Route::get('/events/{event}/questionnaires/{questionnaire}', [EnumeratorQuestionnaireController::class, 'show'])
+            ->name('events.questionnaires.show');
+    Route::post('/events/{event}/questionnaires/{questionnaire}/identify', [EnumeratorQuestionnaireController::class, 'identify'])
+            ->middleware('throttle:60,1')
+            ->name('events.questionnaires.identify');
+    Route::get('/submissions', [EnumeratorSubmissionController::class, 'index'])
+            ->name('submissions.index');
+    Route::get('/submissions/questionnaires/{submission}', [EnumeratorSubmissionController::class, 'show'])
+            ->name('submissions.show');       
 });
 
 Route::middleware(['auth', 'role:field_officer'])->prefix('field-officer')->name('field_officer.')->group(function () {
