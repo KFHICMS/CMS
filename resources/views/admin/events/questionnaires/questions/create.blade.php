@@ -1,29 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@extends('layouts.app', [
+    'active' => 'events',
+    'crumbs' => [
+        ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
+        ['label' => 'Events', 'url' => route('events.index')],
+        ['label' => $event->title, 'url' => route('events.show', $event)],
+        ['label' => $questionnaire->title, 'url' => route('events.questionnaires.show', [$event, $questionnaire])],
+        ['label' => 'Add Question'],
+    ],
+])
 
-    <title>Add Question | {{ $questionnaire->title }}</title>
+@section('title', 'Add Question')
+@section('heading', 'Add Question')
+@section('subheading', $questionnaire->title.' · '.$event->title)
 
+@section('actions')
+    <a class="k-btn k-btn-secondary" href="{{ route('events.questionnaires.show', [$event, $questionnaire]) }}">Back to Questionnaire</a>
+@endsection
+
+@push('head')
     <style>
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            background: #eef7f1;
-            color: #183b28;
-            min-height: 100vh;
         }
 
         .page {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 35px 20px 50px;
+            max-width: none;
+            margin: 0;
+            padding: 0;
         }
 
         .header {
@@ -293,30 +296,10 @@
     background: #2f7446;
 }
     </style>
-</head>
+@endpush
 
-<body>
-
+@section('content')
 <div class="page">
-
-    <div class="header">
-
-        <a
-            href="{{ route('events.questionnaires.show', [$event, $questionnaire]) }}"
-            class="back-link"
-        >
-            ← Back to Questionnaire
-        </a>
-
-        <h1>Add Question</h1>
-
-        <p class="subtitle">
-            {{ $questionnaire->title }}
-            · {{ $event->title }}
-        </p>
-
-    </div>
-
     <div class="card">
 
         @if ($errors->any())
@@ -762,5 +745,4 @@
     updateOptionsVisibility();
 </script>
 
-</body>
-</html>
+@endsection

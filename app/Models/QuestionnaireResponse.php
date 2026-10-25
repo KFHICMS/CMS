@@ -52,6 +52,11 @@ class QuestionnaireResponse extends Model
         return $this->hasMany(QuestionnaireAnswer::class, 'response_id');
     }
 
+    public function edits(): HasMany
+    {
+        return $this->hasMany(QuestionnaireResponseEdit::class, 'response_id')->latest();
+    }
+
     public function submitter(): BelongsTo
     {
         return $this->belongsTo(User::class, 'submitted_by');

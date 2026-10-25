@@ -1,29 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@extends('layouts.app', [
+    'active' => 'events',
+    'crumbs' => [
+        ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
+        ['label' => 'Events', 'url' => route('events.index')],
+        ['label' => $event->title, 'url' => route('events.show', $event)],
+        ['label' => 'Questionnaires', 'url' => route('events.questionnaires.index', $event)],
+        ['label' => $questionnaire->title],
+    ],
+])
 
-    <title>{{ $questionnaire->title }} - Questionnaire</title>
+@section('title', 'Questionnaire')
+@section('heading', $questionnaire->title)
+@section('subheading', 'Questionnaire for '.$event->title)
 
+@section('actions')
+    <a class="k-btn k-btn-secondary" href="{{ route('events.questionnaires.index', $event) }}">Back to Questionnaires</a>
+    <a class="k-btn k-btn-primary" href="{{ route('events.questionnaires.edit', [$event, $questionnaire]) }}">Edit Questionnaire</a>
+@endsection
+
+@push('head')
     <style>
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: #eef7f1;
-            color: #1f3d2b;
-            min-height: 100vh;
         }
 
         .container {
-            width: min(1100px, 92%);
+            width: 100%;
             margin: 0 auto;
-            padding: 35px 0 50px;
+            padding: 0;
         }
 
         .header {
@@ -253,19 +257,15 @@
     background: #f4dada;
 }
     </style>
-</head>
+@endpush
 
-<body>
-
+@section('content')
 <div class="container">
-
     <div class="header">
 
         <div class="top-row">
 
             <div>
-                <h1>{{ $questionnaire->title }}</h1>
-
                 <p>
                     Event:
                     <strong>{{ $event->title }}</strong>
@@ -306,24 +306,6 @@
                     {{ ucfirst($questionnaire->status) }}
                 </div>
             </div>
-
-        </div>
-
-        <div class="actions">
-
-            <a
-                href="{{ route('events.questionnaires.index', $event) }}"
-                class="btn btn-secondary"
-            >
-                ← Back
-            </a>
-
-            <a
-                href="{{ route('events.questionnaires.edit', [$event, $questionnaire]) }}"
-                class="btn btn-secondary"
-            >
-                Edit Questionnaire
-            </a>
 
         </div>
 
@@ -610,6 +592,4 @@
     </div>
 
 </div>
-
-</body>
-</html>
+@endsection

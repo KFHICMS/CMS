@@ -1,29 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@extends('layouts.app', [
+    'active' => 'events',
+    'crumbs' => [
+        ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
+        ['label' => 'Events', 'url' => route('events.index')],
+        ['label' => $event->title, 'url' => route('events.show', $event)],
+        ['label' => 'Questionnaires'],
+    ],
+])
 
-    <title>Questionnaires - {{ $event->title }}</title>
+@section('title', 'Questionnaires')
+@section('heading', 'Questionnaires')
+@section('subheading', $event->title.($event->event_code ? ' · '.$event->event_code : ''))
 
+@section('actions')
+    <a class="k-btn k-btn-secondary" href="{{ route('events.show', $event) }}">Back to Event</a>
+    <a class="k-btn k-btn-primary" href="{{ route('events.questionnaires.create', $event) }}">Create Questionnaire</a>
+@endsection
+
+@push('head')
     <style>
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: #eef7f1;
-            color: #1f3d2b;
-            min-height: 100vh;
         }
 
         .container {
-            width: min(1200px, 92%);
+            width: 100%;
             margin: 0 auto;
-            padding: 35px 0 50px;
+            padding: 0;
         }
 
         .header {
@@ -217,45 +220,10 @@
             }
         }
     </style>
-</head>
+@endpush
 
-<body>
-
+@section('content')
 <div class="container">
-
-    <div class="header">
-
-        <div>
-            <h1>Questionnaires</h1>
-
-            <p>
-                {{ $event->title }}
-                @if($event->event_code)
-                    • {{ $event->event_code }}
-                @endif
-            </p>
-        </div>
-
-        <div class="actions">
-
-            <a
-                href="{{ route('events.show', $event) }}"
-                class="btn btn-secondary"
-            >
-                ← Back to Event
-            </a>
-
-            <a
-                href="{{ route('events.questionnaires.create', $event) }}"
-                class="btn btn-primary"
-            >
-                + Create Questionnaire
-            </a>
-
-        </div>
-
-    </div>
-
     @if(session('success'))
         <div class="success">
             {{ session('success') }}
@@ -362,6 +330,4 @@
     @endif
 
 </div>
-
-</body>
-</html>
+@endsection

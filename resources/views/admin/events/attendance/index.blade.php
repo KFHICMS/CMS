@@ -1,28 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@extends('layouts.app', [
+    'active' => 'events',
+    'crumbs' => [
+        ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
+        ['label' => 'Events', 'url' => route('events.index')],
+        ['label' => $event->title, 'url' => route('events.show', $event)],
+        ['label' => 'Attendance'],
+    ],
+])
 
-    <title>Attendance - {{ $event->title }}</title>
+@section('title', 'Attendance')
+@section('heading', 'Attendance')
+@section('subheading', $event->title.' · '.$event->event_code)
 
+@section('actions')
+    <a class="k-btn k-btn-secondary" href="{{ route('events.show', $event) }}">Back to Event</a>
+@endsection
+
+@push('head')
     <style>
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: #eef7f1;
-            color: #183b2a;
-            min-height: 100vh;
         }
 
         .container {
-            width: min(1100px, 94%);
-            margin: 35px auto;
+            width: 100%;
+            margin: 0;
         }
 
         .top-bar {
@@ -212,21 +214,11 @@
             }
         }
     </style>
-</head>
+@endpush
 
-<body>
-
+@section('content')
 <div class="container">
-
-    <div class="top-bar">
-        <a href="{{ route('events.show', $event) }}" class="back-link">
-            ← Back to Event
-        </a>
-    </div>
-
     <div class="header">
-        <h1>📁 Attendance</h1>
-
         <p>
             {{ $event->title }}
             • {{ $event->event_code }}
@@ -499,6 +491,4 @@
         });
 
 </script>
-
-</body>
-</html>
+@endsection

@@ -1,26 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guardian Management - KFHI CMS</title>
+@extends('layouts.app', [
+    'active' => 'guardians',
+    'crumbs' => [
+        ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
+        ['label' => 'Guardians'],
+    ],
+])
 
+@section('title', 'Guardian Management')
+@section('heading', 'Guardian Management')
+@section('subheading', 'Manage guardian information connected to registered children.')
+
+@section('actions')
+    <a class="k-btn k-btn-primary" href="{{ route('guardians.create') }}">Add New Guardian</a>
+@endsection
+
+@push('head')
     <style>
         * {
             box-sizing: border-box;
         }
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f3f8f4;
-            color: #294536;
-        }
-
         .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 30px;
+            max-width: none;
+            margin: 0;
+            padding: 0;
         }
 
         .page-header {
@@ -181,23 +184,10 @@
             }
         }
     </style>
-</head>
+@endpush
 
-<body>
-
+@section('content')
 <div class="container">
-
-    <div class="page-header">
-        <div>
-            <h1>Guardian Management</h1>
-            <p>Manage guardian information connected to registered children.</p>
-        </div>
-
-        <a href="{{ route('guardians.create') }}" class="btn btn-primary">
-            + Add New Guardian
-        </a>
-    </div>
-
     @if(session('success'))
         <div class="alert">
             {{ session('success') }}
@@ -433,6 +423,4 @@
     </div>
 
 </div>
-
-</body>
-</html>
+@endsection

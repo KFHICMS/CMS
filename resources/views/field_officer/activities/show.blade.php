@@ -1,50 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $event->title }} | KFHI CMS</title>
-    <style>
-        * { box-sizing: border-box; }
-        body { margin: 0; padding: 24px; background: #f3f8f4; color: #294432; font-family: Arial, sans-serif; }
-        main { max-width: 980px; margin: 0 auto; }
-        a { color: #28733a; }
-        .card { margin-top: 18px; padding: 22px; background: #fff; border: 1px solid #dfe9e1; border-radius: 12px; }
-        h1 { margin: 8px 0; }
-        h2 { font-size: 19px; }
-        .muted { color: #65756a; }
-        .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-        .field { margin: 14px 0; }
-        label { display: block; margin-bottom: 6px; font-weight: 600; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #bdcbbf; border-radius: 7px; color: inherit; font: inherit; }
-        textarea { min-height: 110px; resize: vertical; }
-        button, .button { display: inline-block; padding: 10px 14px; border: 0; border-radius: 8px; color: #fff; background: #28733a; text-decoration: none; cursor: pointer; font: inherit; }
-        button.secondary, .button.secondary { color: #294432; background: #e7efe8; }
-        button.danger { background: #a94343; }
-        .message { margin: 14px 0; padding: 12px; border-radius: 8px; background: #edf5ee; }
-        .error { color: #a94343; }
-        .child { display: flex; align-items: center; gap: 14px; }
-        .child img, .avatar { width: 58px; height: 58px; border-radius: 50%; object-fit: cover; background: #e1efe3; }
-        .avatar { display: grid; place-items: center; font-size: 20px; font-weight: 700; color: #28733a; }
-        .benefit-row { padding: 14px 0; border-top: 1px solid #e5ece6; }
-        #qr-reader { width: min(100%, 440px); margin: 12px 0; border-radius: 10px; overflow: hidden; background: #101810; }
-        #qr-reader[hidden] { display: none; }
-        dt { color: #718075; } dd { margin: 0; }
-        @media (max-width: 600px) { body { padding: 14px; } .grid { grid-template-columns: 1fr; } dl { grid-template-columns: 1fr; gap: 4px; } dd { margin-bottom: 8px; } }
-    </style>
-</head>
-<body>
-<main>
-        @include('field_officer.partials.breadcrumbs', ['crumbs' => [
+@extends('layouts.app', [
+    'active' => 'activities',
+    'crumbs' => [
         ['label' => 'Dashboard', 'url' => route('field_officer.dashboard')],
+        ['label' => 'My Programs', 'url' => route('field_officer.programs.index')],
         ['label' => $event->program->name, 'url' => route('field_officer.programs.show', $event->program)],
-        ['label' => $event->title, 'url' => null],
-        ['label' => $child ? 'Child '.$child->child_code : '', 'url' => null, 'id' => 'crumb-child'],
-    ]])
+        ['label' => $event->title],
+        ['label' => $child ? 'Child '.$child->child_code : '', 'id' => 'crumb-child'],
+    ],
+])
+
+@section('title', $event->title)
+@section('heading', $event->title)
+@section('subheading', $event->program->name.' · '.$event->event_code)
+
+@section('content')
     <section class="card">
-        <p class="muted">{{ $event->program->name }} · {{ $event->event_code }}</p>
-        <h1>{{ $event->title }}</h1>
+        
         <p>{{ $event->description ?: 'No activity instructions have been provided.' }}</p>
         @if ($event->program->officers->isNotEmpty())
             <p class="muted">Assigned Field Officers: {{ $event->program->officers->pluck('name')->join(', ') }}</p>
@@ -58,9 +29,6 @@
         </dl>
     </section>
 
-    @if (session('success'))
-        <p class="message" role="status">{{ session('success') }}</p>
-    @endif
     @if ($errors->any())
         <div class="message error" role="alert">
             <ul>@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
@@ -224,7 +192,9 @@
             @endif
         </section>
     @endif
-</main>
+@endsection
+
+@push('scripts')
 <script src="{{ asset('vendor/html5-qrcode/html5-qrcode.min.js') }}"></script>
 <script>
     const identifyUrl = @json(route('field_officer.activities.identify', $event));
@@ -446,5 +416,4 @@
     sync();
 })();
 </script>
-</body>
-</html>
+@endpush

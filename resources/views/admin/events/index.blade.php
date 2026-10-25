@@ -1,29 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@extends('layouts.app', [
+    'active' => 'events',
+    'crumbs' => [
+        ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
+        ['label' => 'Events'],
+    ],
+])
 
-    <title>Event Management | KFHI-CMS</title>
+@section('title', 'Event Management')
+@section('heading', 'Event Management')
+@section('subheading', 'Create and manage KFHI events, attendance and questionnaires.')
 
+@section('actions')
+    <a class="k-btn k-btn-primary" href="{{ route('events.create') }}">Create New Event</a>
+@endsection
+
+@push('head')
     <style>
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: #f3f8f4;
-            color: #24352b;
-            min-height: 100vh;
         }
 
         .page {
-            max-width: 1250px;
-            margin: auto;
-            padding: 35px 25px;
+            max-width: none;
+            margin: 0;
+            padding: 0;
         }
 
         .header {
@@ -211,25 +211,10 @@
     color: #7048a0;
 }
     </style>
-</head>
+@endpush
 
-<body>
-
+@section('content')
 <div class="page">
-
-    <div class="header">
-
-        <div class="title-section">
-            <h1>Event Management</h1>
-            <p>Create and manage KFHI events, attendance and questionnaires.</p>
-        </div>
-
-        <a href="{{ route('events.create') }}" class="btn btn-primary">
-            + Create New Event
-        </a>
-
-    </div>
-
     @if(session('success'))
         <div class="alert">
             {{ session('success') }}
@@ -371,6 +356,4 @@
     @endif
 
 </div>
-
-</body>
-</html>
+@endsection

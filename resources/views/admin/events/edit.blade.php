@@ -1,26 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Edit Event | KFHI CMS</title>
+@extends('layouts.app', [
+    'active' => 'events',
+    'crumbs' => [
+        ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
+        ['label' => 'Events', 'url' => route('events.index')],
+        ['label' => $event->title, 'url' => route('events.show', $event)],
+        ['label' => 'Edit Event'],
+    ],
+])
+
+@section('title', 'Edit Event')
+@section('heading', 'Edit Event')
+@section('subheading', $event->title)
+
+@section('actions')
+    <a class="k-btn k-btn-secondary" href="{{ route('events.show', $event) }}">Back to Event</a>
+@endsection
+
+@push('head')
     <style>
         * { box-sizing: border-box; }
-        body { margin: 0; padding: 28px; background: #eef7f0; color: #294432; font-family: Arial, sans-serif; }
-        main { max-width: 850px; margin: auto; }
-        form { margin-top: 18px; padding: 22px; background: white; border: 1px solid #dce9df; border-radius: 10px; }
+        main { max-width: none; margin: 0; }
+        main > form { margin-top: 0; padding: 22px; background: white; border: 1px solid #dce9df; border-radius: 10px; }
         label { display: block; margin: 14px 0 6px; font-weight: 600; }
         input, textarea, select { width: 100%; padding: 10px; border: 1px solid #bdcbbf; border-radius: 7px; font: inherit; }
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         button { margin-top: 18px; padding: 11px 16px; border: 0; border-radius: 7px; color: white; background: #28733a; cursor: pointer; }
         .errors { color: #a94343; }
-        @media (max-width: 560px) { body { padding: 16px; } .grid { grid-template-columns: 1fr; } }
     </style>
-</head>
-<body>
+@endpush
+
+@section('content')
 <main>
-    <a href="{{ route('events.show', $event) }}">← Back to event</a>
-    <h1>Edit activity</h1>
     @if ($errors->any()) <div class="errors"><ul>@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div> @endif
     <form method="POST" action="{{ route('events.update', $event) }}">
         @csrf
@@ -86,5 +96,4 @@
         <button type="submit">Save activity</button>
     </form>
 </main>
-</body>
-</html>
+@endsection

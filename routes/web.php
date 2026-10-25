@@ -13,6 +13,9 @@ use App\Http\Controllers\Admin\EventAttendanceController;
 use App\Http\Controllers\Admin\FieldSubmissionController;
 use App\Http\Controllers\QuestionnaireResponseController;
 use App\Http\Controllers\Admin\EventEnumeratorController;
+use App\Http\Controllers\Admin\ReportController as AdminReportController;
+use App\Http\Controllers\Admin\AuditLogController;
+use App\Http\Controllers\Admin\AdminDashboardController;
 
 use App\Http\Controllers\ChildOfficer\DashboardController;
 use App\Http\Controllers\ChildOfficer\ChildController as ChildOfficerChildController;
@@ -75,6 +78,18 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         ->except('show')
         ->middleware('role:admin');
     
+    Route::get('/admin/reports', [AdminReportController::class, 'index'])
+        ->name('admin.reports.index');
+    Route::get('/admin/reports/export', [AdminReportController::class, 'export'])
+        ->middleware('throttle:10,1')
+        ->name('admin.reports.export');
+
+    Route::get('/admin/audit-logs', [AuditLogController::class, 'index'])
+        ->name('admin.audit_logs.index');
+    Route::get('/admin/audit-logs/export', [AuditLogController::class, 'export'])
+        ->middleware('throttle:10,1')
+        ->name('admin.audit_logs.export');
+
     Route::get('/admin/field-submissions', [FieldSubmissionController::class, 'index'])
         ->name('field_submissions.index');
     Route::get('/admin/field-submissions/{submission}', [FieldSubmissionController::class, 'show'])
@@ -99,9 +114,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/admin/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
+    Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])
+        ->name('admin.dashboard');
 
 
     /*
@@ -247,6 +261,11 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         ->name('admin_submissions.show');
     Route::patch('/admin/questionnaire-submissions/{submission}/review', [QuestionnaireSubmissionController::class, 'review'])
         ->name('admin_submissions.review');
+
+    Route::get('/admin/questionnaire-submissions/{submission}/edit', [QuestionnaireSubmissionController::class, 'edit'])
+        ->name('admin_submissions.edit');
+    Route::put('/admin/questionnaire-submissions/{submission}', [QuestionnaireSubmissionController::class, 'update'])
+        ->name('admin_submissions.update');
 
     Route::get('/admin/questionnaire-submissions/{submission}/photo', [QuestionnaireSubmissionController::class, 'photo'])
         ->name('admin_submissions.photo');
