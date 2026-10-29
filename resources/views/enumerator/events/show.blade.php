@@ -52,16 +52,9 @@
                         <p><strong>{{ $questionnaire->title }}</strong>
                             @if ($questionnaire->description)<br><span class="muted">{{ $questionnaire->description }}</span>@endif
                         </p>
-                        <form method="POST" action="{{ route('enumerator.events.questionnaires.start', [$event, $questionnaire]) }}" style="margin:10px 0 18px">
-                            @csrf
-                            <label for="child-code-{{ $questionnaire->id }}">Child Code</label>
-                            <input id="child-code-{{ $questionnaire->id }}" type="text" name="child_code" value="{{ old('child_code') }}" maxlength="30" required>
-                            @error('child_code')
-                                <p class="notice" role="alert">{{ $message }}</p>
-                            @enderror
-                            <button class="btn" type="submit">Start Questionnaire</button>
-                        </form>
+                        <p><a class="btn" href="{{ route('enumerator.events.questionnaires.show', [$event, $questionnaire]) }}">Start</a></p>
                     @endforeach
+                    {{-- The "Start" buttons are added in a later step. --}}
                 @endif
             </article>
 
@@ -69,6 +62,7 @@
                 <h3>📋 My Submissions</h3>
                 <p>Attendance recorded by you: {{ $mine['attendance'] }}</p>
                 <p>Questionnaires submitted by you: {{ $mine['questionnaires'] }}</p>
+                <p><a href="{{ route('enumerator.submissions.index', ['event_id' => $event->id]) }}">View my submissions for this event</a></p>
             </article>
         </div>
     </section>

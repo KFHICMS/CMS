@@ -1,29 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Field Submissions | KFHI CMS</title>
-    <style>
-        * { box-sizing: border-box; }
-        body { margin: 0; padding: 30px; background: #eef7f0; color: #294432; font-family: Arial, sans-serif; }
-        main { max-width: 1100px; margin: auto; }
-        .card { margin-top: 18px; padding: 18px; background: white; border: 1px solid #dce9df; border-radius: 10px; }
-        a { color: #28733a; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px 8px; text-align: left; border-bottom: 1px solid #e6eee7; vertical-align: top; }
-        .muted { color: #65756a; }
-        @media (max-width: 700px) { body { padding: 16px; } .table-wrap { overflow-x: auto; } }
-    </style>
-</head>
-<body>
-<main>
-    <a href="{{ route('admin.dashboard') }}">← Back to dashboard</a>
-    <h1>Field Submissions</h1>
-    <p class="muted">Submitted field records. Open one to review it or record a correction.</p>
-    <section class="card table-wrap">
-        <table>
-            <thead><tr><th>Activity</th><th>Program</th><th>Child code</th><th>Officer</th><th>Submitted</th><th>Corrections</th><th></th></tr></thead>
+@extends('layouts.app', [
+    'active' => 'field_submissions',
+    'crumbs' => [
+        ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
+        ['label' => 'Field Submissions'],
+    ],
+])
+
+@section('title', 'Field Submissions')
+@section('heading', 'Field Submissions')
+@section('subheading', 'Submitted field records. Open one to review it or record a correction.')
+
+@section('content')
+    <section class="k-card k-table-wrap">
+        <table class="k-table">
+            <thead>
+            <tr><th>Activity</th><th>Program</th><th>Child code</th><th>Officer</th><th>Submitted</th><th>Corrections</th><th></th></tr>
+            </thead>
             <tbody>
             @forelse ($submissions as $submission)
                 <tr>
@@ -42,6 +34,4 @@
         </table>
         {{ $submissions->links() }}
     </section>
-</main>
-</body>
-</html>
+@endsection

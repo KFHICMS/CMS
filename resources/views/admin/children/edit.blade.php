@@ -1,27 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@extends('layouts.app', [
+    'active' => 'children',
+    'crumbs' => [
+        ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
+        ['label' => 'Children', 'url' => route('children.index')],
+        ['label' => 'Edit Child'],
+    ],
+])
 
-    <title>Edit Child - KFHI-CMS</title>
+@section('title', 'Edit Child')
+@section('heading', 'Edit Child')
+@section('subheading', "Update the registered child's information.")
 
+@section('actions')
+    <a class="k-btn k-btn-secondary" href="{{ route('children.show', $child) }}">Back to Child Details</a>
+@endsection
+
+@push('head')
     <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f2f8f4;
-            color: #26352c;
-        }
-
         .page {
-            max-width: 1000px;
-            margin: auto;
-            padding: 30px;
+            max-width: none;
+            margin: 0;
+            padding: 0;
         }
 
         .header {
@@ -199,17 +198,10 @@
             }
         }
     </style>
-</head>
+@endpush
 
-<body>
-
+@section('content')
 <div class="page">
-
-    <div class="header">
-        <h1>Edit Child</h1>
-        <p>Update the registered child's information.</p>
-    </div>
-
     <div class="card">
 
         <form
@@ -505,6 +497,4 @@
     </div>
 
 </div>
-
-</body>
-</html>
+@endsection

@@ -2,401 +2,296 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>KFHI-CMS | Child Management System</title>
+    <meta name="description" content="The KFHI Child Management System helps authorized staff securely manage child information, programs, activities and services.">
+    <link rel="icon" href="{{ asset('favicon.ico') }}">
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, Helvetica, sans-serif;
-        }
-
-        body {
-            min-height: 100vh;
-            background: #eef7f0;
-            color: #254331;
-        }
-
-        /* Navigation */
-
-        .navbar {
-            width: 100%;
-            padding: 18px 7%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(255, 255, 255, 0.75);
-            box-shadow: 0 4px 20px rgba(0, 80, 40, 0.08);
-            position: relative;
-            z-index: 10;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .brand img {
-            width: 55px;
-            height: 55px;
-            object-fit: contain;
-        }
-
-        .brand-text h2 {
-            color: #236b3b;
-            font-size: 20px;
-        }
-
-        .brand-text span {
-            font-size: 11px;
-            color: #728078;
-        }
-
-        .login-btn {
-            text-decoration: none;
-            background: #2e7d32;
-            color: white;
-            padding: 11px 24px;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            box-shadow: 4px 4px 10px rgba(0, 70, 30, 0.15);
-            transition: 0.2s ease;
-        }
-
-        .login-btn:hover {
-            background: #256b2b;
-            transform: translateY(-2px);
-        }
-
-        /* Hero */
-
-        .hero {
-            min-height: calc(100vh - 91px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 60px 7%;
-        }
-
-        .hero-content {
-            max-width: 900px;
-            text-align: center;
-        }
-
-        .hero-logo {
-            width: 130px;
-            height: 130px;
-            object-fit: contain;
-            margin-bottom: 25px;
-        }
-
-        .hero h1 {
-            font-size: 48px;
-            color: #216b38;
-            margin-bottom: 15px;
-            line-height: 1.15;
-        }
-
-        .hero h1 span {
-            color: #3f8f4d;
-        }
-
-        .hero p {
-            max-width: 700px;
-            margin: 0 auto 30px;
-            color: #65766b;
-            font-size: 17px;
-            line-height: 1.7;
-        }
-
-        .hero-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .primary-btn,
-        .secondary-btn {
-            padding: 14px 28px;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 15px;
-            transition: 0.2s ease;
-        }
-
-        .primary-btn {
-            background: #2e7d32;
-            color: white;
-            box-shadow: 5px 5px 12px rgba(0, 70, 30, 0.15);
-        }
-
-        .primary-btn:hover {
-            background: #256b2b;
-            transform: translateY(-2px);
-        }
-
-        .secondary-btn {
-            background: #f4faf5;
-            color: #2e7d32;
-            box-shadow:
-                5px 5px 12px rgba(0, 70, 30, 0.08),
-                -5px -5px 12px rgba(255, 255, 255, 0.9);
-        }
-
-        .secondary-btn:hover {
-            transform: translateY(-2px);
-        }
-
-        /* Information Cards */
-
-        .features {
-            padding: 20px 7% 70px;
-        }
-
-        .feature-grid {
-            max-width: 1100px;
-            margin: auto;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 25px;
-        }
-
-        .feature-card {
-            background: #f4faf5;
-            padding: 30px 25px;
-            text-align: center;
-            border-radius: 20px;
-            box-shadow:
-                8px 8px 20px rgba(0, 70, 30, 0.08),
-                -8px -8px 20px rgba(255, 255, 255, 0.9);
-        }
-
-        .feature-icon {
-            width: 55px;
-            height: 55px;
-            margin: 0 auto 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 15px;
-            background: #e0f0e3;
-            color: #2e7d32;
-            font-size: 24px;
-        }
-
-        .feature-card h3 {
-            color: #2b5f39;
-            margin-bottom: 10px;
-            font-size: 18px;
-        }
-
-        .feature-card p {
-            color: #718077;
-            font-size: 13px;
-            line-height: 1.6;
-        }
-
-        /* Footer */
-
-        footer {
-            text-align: center;
-            padding: 25px;
-            color: #7c8b81;
-            font-size: 12px;
-        }
-
-        /* Responsive */
-
-        @media (max-width: 800px) {
-            .hero h1 {
-                font-size: 38px;
-            }
-
-            .feature-grid {
-                grid-template-columns: 1fr;
-                max-width: 500px;
-            }
-        }
-
-        @media (max-width: 500px) {
-            .navbar {
-                padding: 15px 5%;
-            }
-
-            .brand-text span {
-                display: none;
-            }
-
-            .hero {
-                padding: 45px 5%;
-            }
-
-            .hero h1 {
-                font-size: 32px;
-            }
-
-            .hero p {
-                font-size: 15px;
-            }
-
-            .hero-logo {
-                width: 100px;
-                height: 100px;
-            }
-        }
-    </style>
+    {{-- Landing-page styles only. Dashboards use kfhi-ui.css and never load this file. --}}
+    <link rel="stylesheet" href="{{ asset('css/kfhi-landing.css') }}">
+    <script>document.documentElement.classList.add('kl-js');</script>
 </head>
+<body class="kl-body">
+<a class="kl-skip" href="#main">Skip to main content</a>
 
-<body>
+@include('layouts.partials.icons')
 
-    <!-- Navigation -->
-
-    <nav class="navbar">
-
-        <div class="brand">
-
-            <img
-                src="{{ asset('images/logo.png') }}"
-                alt="KFHI Logo"
-            >
-
-            <div class="brand-text">
-                <h2>KFHI-CMS</h2>
-                <span>Child Management System</span>
-            </div>
-
-        </div>
-
-        <a href="{{ route('login') }}" class="login-btn">
-            Login
+<!-- Navigation -->
+<header class="kl-header">
+    <div class="kl-wrap kl-header-inner">
+        <a class="kl-brand" href="#home" aria-label="KFHI Child Management System, home">
+            <span class="kl-logo-tile"><img src="{{ asset('images/logo.png') }}" alt="KFHI logo" width="1000" height="1000"></span>
         </a>
 
-    </nav>
+        <nav class="kl-nav" id="kl-nav" aria-label="Main navigation">
+            <ul>
+                <li><a class="kl-nav-link is-active" href="#home" data-spy="home" aria-current="location">Home</a></li>
+                <li><a class="kl-nav-link" href="#about" data-spy="about">About Us</a></li>
+                <li><a class="kl-nav-link" href="#services" data-spy="services">Services</a></li>
+                <li><a class="kl-nav-link" href="#team" data-spy="team">Team</a></li>
+            </ul>
+        </nav>
 
+        <div class="kl-header-actions">
+            <a class="kl-btn kl-login" href="{{ route('login') }}">Login</a>
+            <button class="kl-toggle" id="kl-toggle" type="button" aria-expanded="false" aria-controls="kl-nav" aria-label="Open menu">
+                <span class="kl-toggle-bars" aria-hidden="true"></span>
+            </button>
+        </div>
+    </div>
+</header>
 
-    <!-- Hero Section -->
+<main id="main" tabindex="-1">
 
-    <section class="hero">
-
-        <div class="hero-content">
-
-            <img
-                src="{{ asset('images/logo.png') }}"
-                alt="KFHI Logo"
-                class="hero-logo"
-            >
-
-            <h1>
-                KFHI <span>Child Management System</span>
-            </h1>
-
-            <p>
-                A secure digital platform designed to manage children's
-                information, identification, attendance, events and
-                follow-up activities efficiently and securely.
-            </p>
-
-            <div class="hero-buttons">
-
-                <a
-                    href="{{ route('login') }}"
-                    class="primary-btn"
-                >
-                    Login to System
-                </a>
-
-                <a
-                    href="#features"
-                    class="secondary-btn"
-                >
-                    Learn More
-                </a>
-
+    <!-- Hero -->
+    <section class="kl-hero" id="home" aria-labelledby="kl-hero-title">
+        <div class="kl-wrap kl-hero-grid">
+            <div>
+                <p class="kl-eyebrow">Child Management System</p>
+                <h1 id="kl-hero-title">Empowering Children, <span>Building Brighter Futures</span></h1>
+                <p class="kl-lead">
+                    The KFHI Child Management System helps authorized staff securely manage
+                    child information, programs, activities and services in one place.
+                </p>
+                <div class="kl-cta">
+                    <a class="kl-btn kl-btn-primary" href="{{ route('login') }}">Get Started</a>
+                    <a class="kl-btn kl-btn-soft" href="#about">Learn More</a>
+                </div>
             </div>
 
+            <div class="kl-visual" aria-hidden="true">
+                <span class="kl-visual-logo"><img src="{{ asset('images/logo.png') }}" alt="" width="1000" height="1000"></span>
+                <div class="kl-chips">
+                    <div class="kl-chip"><span class="kl-chip-icon"><svg class="kl-icon"><use href="#i-heart"></use></svg></span>Child records</div>
+                    <div class="kl-chip"><span class="kl-chip-icon"><svg class="kl-icon"><use href="#i-users"></use></svg></span>Guardian information</div>
+                    <div class="kl-chip"><span class="kl-chip-icon"><svg class="kl-icon"><use href="#i-calendar"></use></svg></span>Programs &amp; events</div>
+                    <div class="kl-chip"><span class="kl-chip-icon"><svg class="kl-icon"><use href="#i-scan"></use></svg></span>QR identification</div>
+                </div>
+                <p class="kl-visual-note">Role-based access for authorized staff</p>
+            </div>
         </div>
-
     </section>
-
 
     <!-- Features -->
-
-    <section class="features" id="features">
-
-        <div class="feature-grid">
-
-            <div class="feature-card">
-
-                <div class="feature-icon">
-                    QR
-                </div>
-
-                <h3>
-                    Secure QR Identification
-                </h3>
-
-                <p>
-                    Quickly identify registered children using
-                    secure QR technology without exposing sensitive
-                    personal information.
-                </p>
-
+    <section class="kl-section" id="features" aria-labelledby="kl-features-title">
+        <div class="kl-wrap">
+            <div class="kl-section-head">
+                <h2 id="kl-features-title">Everything your team needs, in one place</h2>
+                <p>Tools built for the day-to-day work of KFHI staff.</p>
             </div>
 
-
-            <div class="feature-card">
-
-                <div class="feature-icon">
-                    ✓
-                </div>
-
-                <h3>
-                    Attendance Management
-                </h3>
-
-                <p>
-                    Record and manage children's attendance for
-                    KFHI events and activities efficiently.
-                </p>
-
+            <div class="kl-grid kl-grid-4">
+                <article class="kl-card">
+                    <div class="kl-card-icon"><svg class="kl-icon" aria-hidden="true"><use href="#i-heart"></use></svg></div>
+                    <h3>Child Information Management</h3>
+                    <p>Securely maintain and access authorized child records.</p>
+                </article>
+                <article class="kl-card">
+                    <div class="kl-card-icon"><svg class="kl-icon" aria-hidden="true"><use href="#i-scan"></use></svg></div>
+                    <h3>QR-Based Identification</h3>
+                    <p>Support child identification through QR codes.</p>
+                </article>
+                <article class="kl-card">
+                    <div class="kl-card-icon"><svg class="kl-icon" aria-hidden="true"><use href="#i-calendar"></use></svg></div>
+                    <h3>Program and Event Management</h3>
+                    <p>Organize programs, activities and attendance records.</p>
+                </article>
+                <article class="kl-card">
+                    <div class="kl-card-icon"><svg class="kl-icon" aria-hidden="true"><use href="#i-chart"></use></svg></div>
+                    <h3>Reporting and Monitoring</h3>
+                    <p>Help authorized staff monitor services and review relevant information.</p>
+                </article>
             </div>
-
-
-            <div class="feature-card">
-
-                <div class="feature-icon">
-                    +
-                </div>
-
-                <h3>
-                    Child Information
-                </h3>
-
-                <p>
-                    Maintain organized child, guardian, event and
-                    follow-up information in one secure system.
-                </p>
-
-            </div>
-
         </div>
-
     </section>
 
+    <!-- About Us -->
+    <section class="kl-section kl-section-alt" id="about" aria-labelledby="kl-about-title">
+        <div class="kl-wrap kl-about">
+            <div class="kl-about-copy">
+                <h2 id="kl-about-title">About Us</h2>
+                <p>
+                    The KFHI Child Management System is the internal platform KFHI staff use to keep
+                    child-focused work organized, consistent and secure.
+                </p>
+                <p>
+                    It brings child and guardian records, programs, events, attendance, questionnaires
+                    and follow-ups together, so authorized staff can coordinate programs and services
+                    without scattered spreadsheets or paper files.
+                </p>
+                <p>
+                    Access is limited to signed-in staff, and each person sees only the tools that
+                    belong to their role.
+                </p>
+            </div>
 
-    <!-- Footer -->
+            <ul class="kl-points">
+                <li class="kl-point">
+                    <span class="kl-card-icon"><svg class="kl-icon" aria-hidden="true"><use href="#i-user"></use></svg></span>
+                    <div>
+                        <h3>Role-based access</h3>
+                        <p>Administrators, child officers, field officers and enumerators each have their own workspace.</p>
+                    </div>
+                </li>
+                <li class="kl-point">
+                    <span class="kl-card-icon"><svg class="kl-icon" aria-hidden="true"><use href="#i-clipboard"></use></svg></span>
+                    <div>
+                        <h3>Accountability</h3>
+                        <p>Important actions are recorded in an audit log for administrators to review.</p>
+                    </div>
+                </li>
+                <li class="kl-point">
+                    <span class="kl-card-icon"><svg class="kl-icon" aria-hidden="true"><use href="#i-folder"></use></svg></span>
+                    <div>
+                        <h3>Backup and recovery</h3>
+                        <p>Administrators can create database backups and restore them when needed.</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </section>
 
-    <footer>
-        © {{ date('Y') }} KFHI Child Management System.
-        All rights reserved.
-    </footer>
+    <!-- Services -->
+    <section class="kl-section" id="services" aria-labelledby="kl-services-title">
+        <div class="kl-wrap">
+            <div class="kl-section-head">
+                <h2 id="kl-services-title">Services</h2>
+                <p>What the system supports today.</p>
+            </div>
 
+            <div class="kl-grid kl-grid-3">
+                <article class="kl-card">
+                    <div class="kl-card-icon"><svg class="kl-icon" aria-hidden="true"><use href="#i-heart"></use></svg></div>
+                    <h3>Child record management</h3>
+                    <p>Register children, keep their details up to date and review each child's profile.</p>
+                </article>
+                <article class="kl-card">
+                    <div class="kl-card-icon"><svg class="kl-icon" aria-hidden="true"><use href="#i-users"></use></svg></div>
+                    <h3>Guardian information</h3>
+                    <p>Record guardians and link them to the children in their care.</p>
+                </article>
+                <article class="kl-card">
+                    <div class="kl-card-icon"><svg class="kl-icon" aria-hidden="true"><use href="#i-calendar"></use></svg></div>
+                    <h3>Program and event coordination</h3>
+                    <p>Plan programs and events, and assign field officers and enumerators to them.</p>
+                </article>
+                <article class="kl-card">
+                    <div class="kl-card-icon"><svg class="kl-icon" aria-hidden="true"><use href="#i-scan"></use></svg></div>
+                    <h3>QR identification and attendance</h3>
+                    <p>Generate child QR codes and scan them to identify children and record attendance.</p>
+                </article>
+                <article class="kl-card">
+                    <div class="kl-card-icon"><svg class="kl-icon" aria-hidden="true"><use href="#i-check"></use></svg></div>
+                    <h3>Questionnaires and submissions</h3>
+                    <p>Build questionnaires for events, collect responses and review submissions.</p>
+                </article>
+                <article class="kl-card">
+                    <div class="kl-card-icon"><svg class="kl-icon" aria-hidden="true"><use href="#i-chart"></use></svg></div>
+                    <h3>Reports and monitoring</h3>
+                    <p>Review reports, follow-ups and activity records to keep services on track.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team -->
+    <section class="kl-section kl-section-alt" id="team" aria-labelledby="kl-team-title">
+        <div class="kl-wrap">
+            <div class="kl-section-head">
+                <h2 id="kl-team-title">Team</h2>
+                <p>The people who use the system work in four roles, each with its own tools.</p>
+            </div>
+
+            <div class="kl-grid kl-grid-4">
+                <article class="kl-card kl-role">
+                    <div class="kl-card-icon"><svg class="kl-icon" aria-hidden="true"><use href="#i-dashboard"></use></svg></div>
+                    <span class="kl-role-tag">Administration</span>
+                    <h3>Administrators</h3>
+                    <p>Manage users, programs, events, questionnaires, reports, audit logs and backups.</p>
+                </article>
+                <article class="kl-card kl-role">
+                    <div class="kl-card-icon"><svg class="kl-icon" aria-hidden="true"><use href="#i-heart"></use></svg></div>
+                    <span class="kl-role-tag">Child Officers</span>
+                    <h3>Child records</h3>
+                    <p>Register and maintain child and guardian records, and work with QR identification.</p>
+                </article>
+                <article class="kl-card kl-role">
+                    <div class="kl-card-icon"><svg class="kl-icon" aria-hidden="true"><use href="#i-folder"></use></svg></div>
+                    <span class="kl-role-tag">Field Officers</span>
+                    <h3>Programs in the field</h3>
+                    <p>Carry out assigned programs and activities, and handle follow-ups.</p>
+                </article>
+                <article class="kl-card kl-role">
+                    <div class="kl-card-icon"><svg class="kl-icon" aria-hidden="true"><use href="#i-clipboard"></use></svg></div>
+                    <span class="kl-role-tag">Enumerators</span>
+                    <h3>Data collection</h3>
+                    <p>Record attendance and questionnaire responses for the events they are assigned to.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Footer -->
+<footer class="kl-footer">
+    <div class="kl-wrap kl-footer-inner">
+        <a class="kl-brand" href="#home" aria-label="KFHI Child Management System, back to top">
+            <span class="kl-logo-tile"><img src="{{ asset('images/logo.png') }}" alt="KFHI logo" width="1000" height="1000" loading="lazy"></span>
+        </a>
+
+        <nav class="kl-footer-nav" aria-label="Footer navigation">
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About Us</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#team">Team</a></li>
+                <li><a href="{{ route('login') }}">Login</a></li>
+            </ul>
+        </nav>
+    </div>
+    <p class="kl-copy">&copy; {{ date('Y') }} KFHI Child Management System. All rights reserved.</p>
+</footer>
+
+<script>
+(() => {
+    const toggle = document.getElementById('kl-toggle');
+    const nav = document.getElementById('kl-nav');
+    const links = Array.from(document.querySelectorAll('[data-spy]'));
+
+    function setMenu(open) {
+        nav.classList.toggle('is-open', open);
+        toggle.setAttribute('aria-expanded', String(open));
+        toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    }
+
+    toggle.addEventListener('click', () => setMenu(!nav.classList.contains('is-open')));
+    nav.addEventListener('click', (event) => { if (event.target.closest('a')) setMenu(false); });
+    document.addEventListener('click', (event) => {
+        if (nav.classList.contains('is-open') && !event.target.closest('.kl-header')) setMenu(false);
+    });
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && nav.classList.contains('is-open')) { setMenu(false); toggle.focus(); }
+    });
+    window.matchMedia('(min-width: 901px)').addEventListener('change', () => setMenu(false));
+
+    // Highlight the nav item for the section currently in view. The features block belongs to "Home".
+    function setActive(name) {
+        links.forEach((link) => {
+            const on = link.dataset.spy === name;
+            link.classList.toggle('is-active', on);
+            if (on) { link.setAttribute('aria-current', 'location'); } else { link.removeAttribute('aria-current'); }
+        });
+    }
+
+    if ('IntersectionObserver' in window) {
+        const map = { home: 'home', features: 'home', about: 'about', services: 'services', team: 'team' };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => { if (entry.isIntersecting) setActive(map[entry.target.id]); });
+        }, { rootMargin: '-40% 0px -55% 0px' });
+        Object.keys(map).forEach((id) => { const el = document.getElementById(id); if (el) observer.observe(el); });
+    }
+})();
+</script>
 </body>
 </html>

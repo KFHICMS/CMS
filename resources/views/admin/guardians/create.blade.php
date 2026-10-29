@@ -1,26 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Guardian - KFHI CMS</title>
+@extends('layouts.app', [
+    'active' => 'guardians',
+    'crumbs' => [
+        ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
+        ['label' => 'Guardians', 'url' => route('guardians.index')],
+        ['label' => 'Add Guardian'],
+    ],
+])
 
+@section('title', 'Add Guardian')
+@section('heading', 'Add New Guardian')
+@section('subheading', 'Register a guardian and connect them to a child.')
+
+@section('actions')
+    <a class="k-btn k-btn-secondary" href="{{ route('guardians.index') }}">Back to Guardians</a>
+@endsection
+
+@push('head')
     <style>
         * {
             box-sizing: border-box;
         }
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f3f8f4;
-            color: #294536;
-        }
-
         .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 30px;
+            max-width: none;
+            margin: 0;
+            padding: 0;
         }
 
         .header {
@@ -172,17 +176,10 @@
             }
         }
     </style>
-</head>
+@endpush
 
-<body>
-
+@section('content')
 <div class="container">
-
-    <div class="header">
-        <h1>Add New Guardian</h1>
-        <p>Register a guardian and connect them to a child.</p>
-    </div>
-
     <div class="form-card">
 
         <form
@@ -575,6 +572,4 @@ childSuggestions.appendChild(item);
     </div>
 
 </div>
-
-</body>
-</html>
+@endsection
