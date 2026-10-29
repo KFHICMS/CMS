@@ -16,62 +16,68 @@
         ];
     @endphp
 
-    <section class="k-stat-grid" aria-label="Summary">
+<section class="k-stat-grid" aria-label="Summary">
         @foreach ($cards as $card)
             @php($url = ($card['route'] ?? null) && \Illuminate\Support\Facades\Route::has($card['route']) ? route($card['route'], $card['params'] ?? []) : null)
             @if ($url)
-                <a class="k-stat-card" href="{{ $url }}">
+<a class="k-stat-card" href="{{ $url }}">
             @else
-                <div class="k-stat-card">
+<div class="k-stat-card">
             @endif
-                <span class="k-stat-icon" aria-hidden="true"><svg class="k-icon"><use href="#i-{{ $card['icon'] }}"></use></svg></span>
-                <span>
-                    <span class="k-stat-label">{{ $card['label'] }}</span>
-                    <strong>{{ number_format($card['value']) }}</strong>
-                    <small>{{ $card['note'] }}</small>
-                </span>
+<span class="k-stat-icon" aria-hidden="true"><svg class="k-icon"><use href="#i-{{ $card['icon'] }}"></use></svg></span>
+<span>
+<span class="k-stat-label">{{ $card['label'] }}</span>
+<strong>{{ number_format($card['value']) }}</strong>
+<small>{{ $card['note'] }}</small>
+</span>
             @if ($url)
-                </a>
+</a>
             @else
-                </div>
+</div>
             @endif
         @endforeach
-    </section>
+</section>
 
-    <section class="k-two-col" style="margin-top: 16px">
-        <div class="k-card">
-            <div class="k-card-head">
-                <h2>Recent Activity</h2>
-                <span>Latest system activities</span>
-            </div>
+<section class="k-two-col" style="margin-top: 16px">
+<div class="k-card">
+<div class="k-card-head">
+<h2>Recent Activity</h2>
+<span>Latest system activities</span>
+</div>
             @forelse ($activity as $entry)
-                <div class="k-activity-item">
-                    <strong>{{ ucfirst(str_replace('_', ' ', $entry->action)) }}</strong>
+<div class="k-activity-item">
+<strong>{{ ucfirst(str_replace('_', ' ', $entry->action)) }}</strong>
                     @if ($entry->description)
-                        <p>{{ $entry->description }}</p>
+<p>{{ $entry->description }}</p>
                     @endif
-                    <small>
+<small>
                         {{ $names[$entry->user_id] ?? 'System' }}
                         · {{ $entry->created_at?->diffForHumans() }}
-                    </small>
-                </div>
+</small>
+</div>
             @empty
-                <div class="k-empty">No activity has been recorded yet.</div>
+<div class="k-empty">No activity has been recorded yet.</div>
             @endforelse
-        </div>
+</div>
 
-        <div class="k-card">
-            <div class="k-card-head">
-                <h2>Quick Actions</h2>
-            </div>
-            <div class="k-quick">
+<div class="k-card">
+<div class="k-card-head">
+<h2>Quick Actions</h2>
+</div>
+<div class="k-quick">
                 @foreach ($actions as $action)
-                    <a href="{{ $action['url'] }}">
-                        <svg class="k-icon" aria-hidden="true"><use href="#i-{{ $action['icon'] }}"></use></svg>
+<a href="{{ $action['url'] }}">
+<svg class="k-icon" aria-hidden="true"><use href="#i-{{ $action['icon'] }}"></use></svg>
                         {{ $action['label'] }}
-                    </a>
+</a>
                 @endforeach
-            </div>
-        </div>
-    </section>
+</div>
+</div>
+</section>
+
+<div class="k-stack" style="margin-top: 16px">
+    @include('admin.dashboard.partials.backup-reminder')
+    @include('admin.dashboard.partials.child-categories')
+    @include('admin.dashboard.partials.messages')
+</div>
 @endsection

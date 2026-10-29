@@ -16,6 +16,8 @@ use App\Http\Controllers\Admin\EventEnumeratorController;
 use App\Http\Controllers\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\MessageController;
+use App\Http\Controllers\Admin\BackupController;
 
 use App\Http\Controllers\ChildOfficer\DashboardController;
 use App\Http\Controllers\ChildOfficer\ChildController as ChildOfficerChildController;
@@ -269,6 +271,12 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/admin/questionnaire-submissions/{submission}/photo', [QuestionnaireSubmissionController::class, 'photo'])
         ->name('admin_submissions.photo');
+
+    Route::get('/admin/backups', [BackupController::class, 'index'])->name('admin.backups.index');
+    Route::post('/admin/backups', [BackupController::class, 'store'])->middleware('throttle:5,1')->name('admin.backups.store');
+    Route::get('/admin/backups/{backup}/download', [BackupController::class, 'download'])->middleware('throttle:10,1')->name('admin.backups.download');
+    Route::get('/admin/backups/{backup}/restore', [BackupController::class, 'restoreForm'])->name('admin.backups.restore.form');
+    Route::post('/admin/backups/{backup}/restore', [BackupController::class, 'restore'])->middleware('throttle:3,1')->name('admin.backups.restore');
 });
 
 /*
@@ -516,4 +524,16 @@ Route::middleware(['auth', 'role:field_officer'])->prefix('field-officer')->name
         ->name('follow_ups.show');
     Route::patch('/follow-ups/{followUp}', [FieldOfficerFollowUpController::class, 'update'])
         ->name('follow_ups.update');
+});
+
+Route::middleware(['auth', 'role:admin,child_officer,field_officer,enumerator'])
+    ->prefix('messages')->name('messages.')->group(function () {
+        Route::get('/', [MessageController::class, 'index'])->name('index');
+        Route::get('/create', [MessageController::class, 'create'])->name('create');
+        Route::post('/', [MessageController::class, 'store'])->middleware('throttle:20,1')->name('store');
+        Route::get('/{conversation}', [MessageController::class, 'show'])->whereNumber('conversation')->name('show');
+        Route::get('/notifications', [MessageController::class, 'notifications'])->middleware('throttle:60,1')->name('notifications');
+        Route::post('/{conversation}/reply', [MessageController::class, 'reply'])->middleware('throttle:30,1')->whereNumber('conversation')->name('reply');
+        Route::delete('/{conversation}', [MessageController::class, 'destroy'])->whereNumber('conversation')->name('destroy');
+        Route::patch('/{conversation}/restore', [MessageController::class, 'restore'])->whereNumber('conversation')->name('restore');
 });

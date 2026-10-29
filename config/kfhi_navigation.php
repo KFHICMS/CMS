@@ -26,12 +26,16 @@ return [
             ['key' => 'reports', 'group' => 'Review', 'label' => 'Reports', 'route' => 'admin.reports.index', 'icon' => 'chart'],
             ['key' => 'users', 'group' => 'System', 'label' => 'Users', 'route' => 'users.index', 'icon' => 'user'],
             ['key' => 'audit_logs', 'group' => 'System', 'label' => 'Audit Logs', 'route' => 'admin.audit_logs.index', 'icon' => 'clipboard'],
+            ['key' => 'messages', 'group' => 'System', 'label' => 'Messages', 'route' => 'messages.index', 'icon' => 'message'],
+            ['key' => 'backups', 'group' => 'System', 'label' => 'Backup & Recovery', 'route' => 'admin.backups.index', 'icon' => 'folder'],
         ],
 
         'child_officer' => [
             ['key' => 'dashboard', 'label' => 'Dashboard', 'route' => 'child_officer.dashboard', 'icon' => 'dashboard'],
             ['key' => 'children', 'label' => 'Children', 'route' => 'child_officer.children.index', 'icon' => 'heart'],
+            ['key' => 'guardians', 'label' => 'Guardians', 'route' => 'child_officer.guardians.create', 'icon' => 'users'],
             ['key' => 'scan', 'label' => 'Scan QR', 'route' => 'child_officer.qr.scan', 'icon' => 'scan'],
+            ['key' => 'messages', 'group' => 'System', 'label' => 'Messages', 'route' => 'messages.index', 'icon' => 'message'],
         ],
 
         'field_officer' => [
@@ -40,11 +44,13 @@ return [
             ['key' => 'activities', 'label' => "Today's Activities", 'route' => 'field_officer.activities.index', 'icon' => 'calendar'],
             ['key' => 'follow-ups', 'label' => 'Follow-ups', 'route' => 'field_officer.follow_ups.index', 'icon' => 'file'],
             ['key' => 'reports', 'label' => 'Reports', 'route' => 'field_officer.reports.index', 'icon' => 'chart'],
-        ],
+            ['key' => 'messages', 'group' => 'System', 'label' => 'Messages', 'route' => 'messages.index', 'icon' => 'message'],
+        ], 
 
         'enumerator' => [
             ['key' => 'dashboard', 'label' => 'Dashboard', 'route' => 'enumerator.dashboard', 'icon' => 'dashboard'],
             ['key' => 'submissions', 'label' => 'My Submissions', 'route' => 'enumerator.submissions.index', 'icon' => 'check'],
+            ['key' => 'messages', 'group' => 'System', 'label' => 'Messages', 'route' => 'messages.index', 'icon' => 'message'],
         ],
     ],
 ];

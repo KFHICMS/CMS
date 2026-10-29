@@ -30,9 +30,9 @@
 
         <div class="k-main">
             <main class="k-content" id="main-content" tabindex="-1">
-                @isset($crumbs)
-                    <x-breadcrumbs :items="$crumbs" />
-                @endisset
+                <div class="k-navrow">
+                    <x-back-button :crumbs="$crumbs ?? []" :active="$active" :back-url="$backUrl ?? null" :nav-items="$navItems" :hide="$hideBack ?? false" />
+                </div>
 
                 <div class="k-page-header">
                     <div>
@@ -68,11 +68,21 @@
     const KEY = 'kfhi.sidebar.collapsed';
     const isMobile = () => window.matchMedia('(max-width: 900px)').matches;
 
+    // Desktop: the menu button shows whether the sidebar is expanded. Mobile: whether the drawer is open.
+    function syncMenu() {
+        const open = isMobile()
+            ? app.classList.contains('drawer-open')
+            : !app.classList.contains('is-collapsed');
+        menu.setAttribute('aria-expanded', String(open));
+        menu.setAttribute('aria-label', isMobile() ? 'Open navigation menu' : (open ? 'Collapse sidebar' : 'Expand sidebar'));
+    }
+
     function setCollapsed(on) {
         app.classList.toggle('is-collapsed', on);
         collapse.setAttribute('aria-expanded', String(!on));
         collapse.setAttribute('aria-label', on ? 'Expand sidebar' : 'Collapse sidebar');
         try { localStorage.setItem(KEY, on ? '1' : '0'); } catch (e) { /* storage unavailable */ }
+        syncMenu();
     }
 
     try {
@@ -84,13 +94,21 @@
     function setDrawer(open) {
         app.classList.toggle('drawer-open', open);
         overlay.hidden = !open;
-        menu.setAttribute('aria-expanded', String(open));
+        syncMenu();
     }
 
-    menu.addEventListener('click', () => setDrawer(!app.classList.contains('drawer-open')));
+    menu.addEventListener('click', () => {
+        if (isMobile()) {
+            setDrawer(!app.classList.contains('drawer-open'));
+        } else {
+            setCollapsed(!app.classList.contains('is-collapsed'));
+        }
+    });
     overlay.addEventListener('click', () => setDrawer(false));
     document.addEventListener('keydown', (event) => { if (event.key === 'Escape') setDrawer(false); });
-    window.addEventListener('resize', () => { if (!isMobile()) setDrawer(false); });
+    window.addEventListener('resize', () => { if (!isMobile()) setDrawer(false); syncMenu(); });
+
+    syncMenu();
 })();
 </script>
 @stack('scripts')

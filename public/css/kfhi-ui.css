@@ -13,14 +13,15 @@
 :root {
   /* Official palette */
   --k-primary: #2E7D32;
-  --k-primary-dark: #05500d;
+  --k-primary-dark: #05410B;
   --k-secondary: #43A047;
   --k-light: #E8F5E9;
-  --k-bg: #F5FBF6;
+  --k-bg: #F0F5F1;
   --k-white: #FFFFFF;
   --k-text: #263238;
-  --k-text-2: #607D8B;
-  --k-border: #DCE5DF;
+  --k-text-2: #546E7A;
+  --k-border: #D5E0D8;
+  --k-border-input: #6F8577;   /* 3.6:1 on the page background, 4:1 on white (WCAG 1.4.11) */
   --k-warning: #F9A825;
   --k-error: #D32F2F;
   --k-info: #1976D2;
@@ -35,9 +36,23 @@
   --k-info-text: #0D47A1;
   --k-disabled-bg: #E3EAE5;
 
-  --k-radius: 10px;
+  /* Shape, spacing, motion */
+  --k-radius: 12px;
   --k-radius-sm: 8px;
-  --k-shadow: 0 1px 2px rgba(38, 50, 56, .06), 0 1px 3px rgba(38, 50, 56, .04);
+  --k-radius-pill: 999px;
+  --k-space-1: 4px;
+  --k-space-2: 8px;
+  --k-space-3: 12px;
+  --k-space-4: 16px;
+  --k-space-5: 24px;
+  --k-space-6: 32px;
+  --k-transition: .15s ease;
+
+  /* Neumorphism: raised surfaces (cards, buttons) and inset surfaces (inputs, pressed) */
+  --k-shadow: 6px 6px 12px rgba(5, 65, 11, .08), -6px -6px 12px rgba(255, 255, 255, .9);
+  --k-shadow-sm: 3px 3px 6px rgba(5, 65, 11, .08), -3px -3px 6px rgba(255, 255, 255, .9);
+  --k-shadow-hover: 8px 8px 16px rgba(5, 65, 11, .10), -8px -8px 16px rgba(255, 255, 255, .95);
+  --k-shadow-inset: inset 2px 2px 5px rgba(5, 65, 11, .10), inset -2px -2px 5px rgba(255, 255, 255, .9);
   --k-sidebar-w: 256px;
   --k-sidebar-w-collapsed: 76px;
   --k-topbar-h: 68px;
@@ -232,7 +247,9 @@ a:hover { color: var(--k-primary); }
   background: var(--k-white); border: 1px solid var(--k-border); border-radius: var(--k-radius);
   box-shadow: var(--k-shadow); color: var(--k-text); text-decoration: none;
 }
-a.k-stat-card:hover { border-color: var(--k-primary); box-shadow: 0 2px 10px rgba(46, 125, 50, .16); color: var(--k-text); }
+.k-stat-card { transition: box-shadow var(--k-transition), border-color var(--k-transition); }
+a.k-stat-card:hover { border-color: var(--k-primary); box-shadow: var(--k-shadow-hover); color: var(--k-text); }
+a.k-stat-card:active { box-shadow: var(--k-shadow-inset); }
 .k-stat-icon { display: grid; place-items: center; width: 48px; height: 48px; flex: none; border-radius: 12px; background: var(--k-light); color: var(--k-primary-dark); }
 .k-stat-icon .k-icon { width: 24px; height: 24px; }
 .k-stat-card strong { display: block; font-size: 28px; font-weight: 700; line-height: 1.15; color: var(--k-primary-dark); }
@@ -244,18 +261,25 @@ a.k-stat-card:hover { border-color: var(--k-primary); box-shadow: 0 2px 10px rgb
   min-height: 40px; padding: 9px 16px;
   border: 1px solid transparent; border-radius: var(--k-radius-sm);
   font: 600 14px/1.2 var(--k-font); text-decoration: none; cursor: pointer;
+  box-shadow: var(--k-shadow-sm);
+  transition: background var(--k-transition), color var(--k-transition), border-color var(--k-transition), box-shadow var(--k-transition);
 }
+.k-btn:active { box-shadow: var(--k-shadow-inset); }
 .k-btn-primary { background: var(--k-primary); color: var(--k-white); }
 .k-btn-primary:hover { background: var(--k-primary-dark); color: var(--k-white); }
 .k-btn-secondary { background: var(--k-white); color: var(--k-primary-dark); border-color: var(--k-border); }
 .k-btn-secondary:hover { background: var(--k-light); color: var(--k-primary-dark); }
 .k-btn-danger { background: var(--k-error); color: var(--k-white); }
 .k-btn-danger:hover { background: var(--k-error-dark); color: var(--k-white); }
-.k-btn[disabled], .k-btn.is-disabled { background: var(--k-disabled-bg); color: var(--k-text-2-strong); border-color: var(--k-border); cursor: not-allowed; }
+.k-btn-success { background: var(--k-light); color: var(--k-primary-dark); border-color: var(--k-secondary); }
+.k-btn-success:hover { background: #C8E6C9; color: var(--k-primary-dark); }
+.k-btn-warning { background: var(--k-warning); color: var(--k-text); }
+.k-btn-warning:hover { background: #F57F17; color: var(--k-white); }
+.k-btn[disabled], .k-btn.is-disabled { background: var(--k-disabled-bg); color: var(--k-text-2-strong); border-color: var(--k-border); cursor: not-allowed; box-shadow: none; }
 
 .k-badge {
   display: inline-flex; align-items: center; gap: 6px;
-  padding: 3px 10px; border-radius: 999px;
+  padding: 3px 10px; border-radius: var(--k-radius-pill);
   font-size: 12px; font-weight: 600; line-height: 1.5;
   background: var(--k-light); color: var(--k-primary-dark); border: 1px solid transparent;
 }
@@ -272,19 +296,23 @@ a.k-stat-card:hover { border-color: var(--k-primary); box-shadow: 0 2px 10px rgb
 
 .k-table-wrap { overflow-x: auto; }
 .k-table { width: 100%; border-collapse: collapse; }
-.k-table th, .k-table td { padding: 12px 10px; text-align: left; border-bottom: 1px solid var(--k-border); vertical-align: top; }
+.k-table th, .k-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--k-border); vertical-align: top; }
 .k-table th { font-size: 13px; font-weight: 600; color: var(--k-text-2-strong); background: var(--k-bg); }
-.k-table tbody tr:hover { background: #FAFDFB; }
+.k-table tbody tr:hover { background: var(--k-light); }
 
 .k-field { margin: 0 0 16px; }
 .k-field label { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 600; }
 .k-input, .k-select, .k-textarea {
   width: 100%; padding: 10px 12px;
   background: var(--k-white); color: var(--k-text);
-  border: 1px solid #B7C6BD; border-radius: var(--k-radius-sm);
+  border: 1px solid var(--k-border-input); border-radius: var(--k-radius-sm);
   font: 400 15px var(--k-font);
+  box-shadow: var(--k-shadow-inset);
+  transition: border-color var(--k-transition), box-shadow var(--k-transition);
 }
 .k-input:focus, .k-select:focus, .k-textarea:focus { border-color: var(--k-primary); outline: 3px solid rgba(46, 125, 50, .2); }
+.k-input:disabled, .k-select:disabled, .k-textarea:disabled { background: var(--k-disabled-bg); color: var(--k-text-2-strong); cursor: not-allowed; box-shadow: none; }
+.k-input[aria-invalid="true"], .k-select[aria-invalid="true"], .k-textarea[aria-invalid="true"] { border-color: var(--k-error); }
 .k-help { font-size: 13px; color: var(--k-text-2-strong); margin-top: 4px; }
 .k-error-text { font-size: 13px; color: var(--k-error-dark); margin-top: 4px; }
 .k-form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
@@ -302,8 +330,10 @@ a.k-stat-card:hover { border-color: var(--k-primary); box-shadow: 0 2px 10px rgb
   display: flex; align-items: center; gap: 10px; padding: 11px 14px;
   border: 1px solid var(--k-border); border-radius: var(--k-radius-sm);
   background: var(--k-white); color: var(--k-primary-dark); font-weight: 600; text-decoration: none;
+  box-shadow: var(--k-shadow-sm); transition: background var(--k-transition), border-color var(--k-transition), box-shadow var(--k-transition);
 }
 .k-quick a:hover { background: var(--k-light); border-color: var(--k-primary); }
+.k-quick a:active { box-shadow: var(--k-shadow-inset); }
 
 /* ----- Compatibility layer -----
    Pages built before the design system use these short class names. They are
@@ -324,7 +354,7 @@ a.k-stat-card:hover { border-color: var(--k-primary); box-shadow: 0 2px 10px rgb
 .k-content .stat strong { display: block; font-size: 28px; font-weight: 700; color: var(--k-primary-dark); }
 .k-content .stat span { font-size: 14px; color: var(--k-text-2-strong); }
 .k-content .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-top: 18px; }
-.k-content .stats .stat { background: var(--k-white); border: 1px solid var(--k-border); border-radius: var(--k-radius); padding: 16px; }
+.k-content .stats .stat { background: var(--k-white); border: 1px solid var(--k-border); border-radius: var(--k-radius); padding: 16px; box-shadow: var(--k-shadow-sm); }
 .k-content .muted { color: var(--k-text-2-strong); font-size: 14px; }
 .k-content .btn,
 .k-content .action,
@@ -334,7 +364,11 @@ a.k-stat-card:hover { border-color: var(--k-primary); box-shadow: 0 2px 10px rgb
   min-height: 40px; padding: 9px 16px; border: 1px solid transparent; border-radius: var(--k-radius-sm);
   background: var(--k-primary); color: var(--k-white);
   font: 600 14px/1.2 var(--k-font); text-decoration: none; cursor: pointer;
+  box-shadow: var(--k-shadow-sm);
+  transition: background var(--k-transition), color var(--k-transition), box-shadow var(--k-transition);
 }
+.k-content .btn:active, .k-content .action:active, .k-content .button:active,
+.k-content button:not([class]):active { box-shadow: var(--k-shadow-inset); }
 .k-content .action { margin-top: 12px; min-height: 38px; padding: 8px 14px; }
 .k-content .btn:hover, .k-content .action:hover, .k-content .button:hover,
 .k-content button:not([class]):hover { background: var(--k-primary-dark); color: var(--k-white); }
@@ -343,9 +377,9 @@ a.k-stat-card:hover { border-color: var(--k-primary); box-shadow: 0 2px 10px rgb
 }
 .k-content .btn.secondary:hover, .k-content button.secondary:hover { background: var(--k-light); color: var(--k-primary-dark); }
 .k-content button.danger { background: var(--k-error); color: var(--k-white); }
-.k-content .btn[disabled], .k-content button[disabled] { background: var(--k-disabled-bg); color: var(--k-text-2-strong); cursor: not-allowed; }
+.k-content .btn[disabled], .k-content button[disabled] { background: var(--k-disabled-bg); color: var(--k-text-2-strong); cursor: not-allowed; box-shadow: none; }
 .k-content .tag {
-  display: inline-block; padding: 3px 10px; margin: 2px 4px 2px 0; border-radius: 999px;
+  display: inline-block; padding: 3px 10px; margin: 2px 4px 2px 0; border-radius: var(--k-radius-pill);
   background: var(--k-light); color: var(--k-primary-dark); font-size: 12px; font-weight: 600;
 }
 .k-content .tag.off { background: var(--k-disabled-bg); color: var(--k-text-2-strong); }
@@ -367,7 +401,7 @@ a.k-stat-card:hover { border-color: var(--k-primary); box-shadow: 0 2px 10px rgb
 .k-content .folder:hover { border-color: var(--k-primary); }
 .k-content .list { display: grid; gap: 12px; }
 .k-content .tabs a {
-  display: inline-block; margin: 0 8px 8px 0; padding: 7px 14px; border-radius: 999px;
+  display: inline-block; margin: 0 8px 8px 0; padding: 7px 14px; border-radius: var(--k-radius-pill);
   background: var(--k-light); color: var(--k-primary-dark); text-decoration: none; font-size: 14px; font-weight: 500;
 }
 .k-content .tabs a.current { background: var(--k-primary); color: var(--k-white); }
@@ -383,8 +417,10 @@ a.k-stat-card:hover { border-color: var(--k-primary); box-shadow: 0 2px 10px rgb
 .k-content input[type=text], .k-content input[type=number], .k-content input[type=date],
 .k-content input[type=time], .k-content input[type=email], .k-content select, .k-content textarea {
   width: 100%; padding: 10px 12px; background: var(--k-white); color: var(--k-text);
-  border: 1px solid #B7C6BD; border-radius: var(--k-radius-sm); font: 400 15px var(--k-font);
+  border: 1px solid var(--k-border-input); border-radius: var(--k-radius-sm); font: 400 15px var(--k-font);
+  box-shadow: var(--k-shadow-inset);
 }
+.k-content input:disabled, .k-content select:disabled, .k-content textarea:disabled { background: var(--k-disabled-bg); color: var(--k-text-2-strong); cursor: not-allowed; box-shadow: none; }
 .k-content textarea { min-height: 110px; resize: vertical; }
 .k-content hr { border: 0; border-top: 1px solid var(--k-border); margin: 16px 0; }
 .k-content dl { display: grid; grid-template-columns: 180px 1fr; gap: 8px 12px; margin: 12px 0 0; }
@@ -437,11 +473,19 @@ a.k-stat-card:hover { border-color: var(--k-primary); box-shadow: 0 2px 10px rgb
   .k-brand img { width: 40px; height: 40px; }
 }
 
+@media (max-width: 700px) {
+  .k-content table { display: block; max-width: 100%; overflow-x: auto; }
+}
+
 @media (max-width: 600px) {
   .k-content dl { grid-template-columns: 1fr; gap: 2px; }
   .k-content dd { margin-bottom: 8px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .k-sidebar { transition: none; }
+  *, *::before, *::after { transition: none !important; }
 }
+
+.k-back-row { margin: 0 0 12px; }
+.k-back-btn { min-height: 40px; }
+@media (max-width: 900px) { .k-back-btn { min-height: 44px; } }
