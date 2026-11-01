@@ -1,35 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Activity Record Review | KFHI CMS</title>
-    <style>
-        * { box-sizing: border-box; }
-        body { margin: 0; padding: 24px; background: #f3f8f4; color: #294432; font-family: Arial, sans-serif; }
-        main { max-width: 900px; margin: 0 auto; }
-        .card { margin-top: 18px; padding: 22px; background: white; border: 1px solid #dfe9e1; border-radius: 12px; }
-        .muted { color: #65756a; }
-        .tag { display: inline-block; padding: 5px 9px; border-radius: 20px; background: #e8f4ea; color: #28733a; }
-        dl { display: grid; grid-template-columns: 180px 1fr; gap: 10px; }
-        dt { color: #718075; } dd { margin: 0; }
-        li { margin: 7px 0; }
-        a { color: #28733a; }
-        @media (max-width: 580px) { body { padding: 14px; } dl { grid-template-columns: 1fr; gap: 4px; } dd { margin-bottom: 9px; } }
-    </style>
-</head>
-<body>
-<main>
-        @include('field_officer.partials.breadcrumbs', ['crumbs' => [
+@extends('layouts.app', [
+    'active' => 'activities',
+    'crumbs' => [
         ['label' => 'Dashboard', 'url' => route('field_officer.dashboard')],
+        ['label' => 'My Programs', 'url' => route('field_officer.programs.index')],
         ['label' => $event->program->name, 'url' => route('field_officer.programs.show', $event->program)],
         ['label' => $event->title, 'url' => route('field_officer.activities.show', $event)],
-        ['label' => 'Review', 'url' => null],
-    ]])
-    @if (session('success')) <p class="card" role="status">{{ session('success') }}</p> @endif
+        ['label' => 'Review'],
+    ],
+])
+
+@section('title', 'Submitted record review')
+@section('heading', $event->title.' — submitted record review')
+@section('subheading', $event->program->name.' · '.$event->event_code)
+
+@section('content')
     <section class="card">
-        <p class="muted">{{ $event->program->name }} · {{ $event->event_code }}</p>
-        <h1>{{ $event->title }} — submitted record review</h1>
+       
         <p><span class="tag">{{ ucfirst($submission->status) }}</span></p>
         @if ($submission->corrections->isNotEmpty())
             @php($latestCorrection = $submission->corrections->first())
@@ -85,6 +71,4 @@
             <a href="{{ route('field_officer.activities.show', ['event' => $event, 'submission' => $submission->id]) }}">Continue editing this draft</a>
         </section>
     @endif
-</main>
-</body>
-</html>
+@endsection

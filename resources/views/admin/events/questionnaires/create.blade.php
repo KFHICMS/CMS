@@ -1,29 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@extends('layouts.app', [
+    'active' => 'events',
+    'crumbs' => [
+        ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
+        ['label' => 'Events', 'url' => route('events.index')],
+        ['label' => $event->title, 'url' => route('events.show', $event)],
+        ['label' => 'Questionnaires', 'url' => route('events.questionnaires.index', $event)],
+        ['label' => 'Create Questionnaire'],
+    ],
+])
 
-    <title>Create Questionnaire - {{ $event->title }}</title>
+@section('title', 'Create Questionnaire')
+@section('heading', 'Create Questionnaire')
+@section('subheading', 'Event: '.$event->title.($event->event_code ? ' · '.$event->event_code : ''))
 
+@section('actions')
+    <a class="k-btn k-btn-secondary" href="{{ route('events.questionnaires.index', $event) }}">Back to Questionnaires</a>
+@endsection
+
+@push('head')
     <style>
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: #eef7f1;
-            color: #1f3d2b;
-            min-height: 100vh;
         }
 
         .container {
-            width: min(900px, 92%);
+            width: 100%;
             margin: 0 auto;
-            padding: 35px 0 50px;
+            padding: 0;
         }
 
         .header {
@@ -162,25 +165,10 @@
             }
         }
     </style>
-</head>
+@endpush
 
-<body>
-
+@section('content')
 <div class="container">
-
-    <div class="header">
-        <h1>Create Questionnaire</h1>
-
-        <p>
-            Event:
-            <strong>{{ $event->title }}</strong>
-
-            @if($event->event_code)
-                • {{ $event->event_code }}
-            @endif
-        </p>
-    </div>
-
     @if($errors->any())
 
         <div class="error-box">
@@ -269,6 +257,4 @@
     </div>
 
 </div>
-
-</body>
-</html>
+@endsection

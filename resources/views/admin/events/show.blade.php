@@ -1,28 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@extends('layouts.app', [
+    'active' => 'events',
+    'crumbs' => [
+        ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
+        ['label' => 'Events', 'url' => route('events.index')],
+        ['label' => $event->title],
+    ],
+])
 
-    <title>{{ $event->title }} - KFHI-CMS</title>
+@section('title', 'Event Details')
+@section('heading', 'Event Details')
+@section('subheading', $event->title)
 
+@section('actions')
+    <a class="k-btn k-btn-primary" href="{{ route('events.edit', $event) }}">Edit Event</a>
+    <a class="k-btn k-btn-secondary" href="{{ route('events.enumerators.edit', $event) }}">Assign Enumerators</a>
+@endsection
+
+@push('head')
     <style>
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: #eef7f1;
-            color: #183b2a;
-            min-height: 100vh;
         }
 
         .container {
-            width: min(1100px, 94%);
-            margin: 40px auto;
+            width: 100%;
+            margin: 0;
         }
 
         .top-bar {
@@ -182,18 +184,10 @@
             }
         }
     </style>
-</head>
+@endpush
 
-<body>
-
+@section('content')
 <div class="container">
-
-    <div class="top-bar">
-        <a href="{{ route('events.index') }}" class="back-btn">
-            ← Back to Events
-        </a>
-    </div>
-
     <div class="event-header">
 
         <div class="event-title">
@@ -244,23 +238,6 @@
                 {{ $event->description }}
             </div>
         @endif
-
-        <div class="actions">
-            <a href="{{ route('events.edit', $event) }}"
-               class="btn btn-edit">
-                Edit Event
-            </a>
-            
-            <a href="{{ route('events.enumerators.edit', $event) }}"
-               class="btn btn-edit">
-                Assign Enumerators
-            </a>
-            
-            <a href="{{ route('events.index') }}"
-               class="btn btn-back">
-                Back
-            </a>
-        </div>
 
     </div>
 
@@ -329,6 +306,4 @@
     @endif
 
 </div>
-
-</body>
-</html>
+@endsection

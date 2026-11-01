@@ -463,8 +463,6 @@
                             type="number"
                             name="question_{{ $question->id }}"
                             value="{{ old('question_'.$question->id) }}"
-                            min="{{ $question->settings['min'] ?? $question->settings['min_value'] ?? '' }}"
-                            max="{{ $question->settings['max'] ?? $question->settings['max_value'] ?? '' }}"
                             @required($question->is_required)
                         >
 
@@ -476,8 +474,6 @@
                             type="date"
                             name="question_{{ $question->id }}"
                             value="{{ old('question_'.$question->id) }}"
-                            min="{{ $question->settings['min_date'] ?? '' }}"
-                            max="{{ $question->settings['max_date'] ?? '' }}"
                             @required($question->is_required)
                         >
 
@@ -673,12 +669,6 @@
                         </div>
 
                     @enderror
-                    @foreach($errors->get('question_'.$question->id.'.*') as $messages)
-                        @foreach($messages as $message)
-                            <div class="error">{{ $message }}</div>
-                        @endforeach
-                    @endforeach
-
                 </div>
 
             @endforeach

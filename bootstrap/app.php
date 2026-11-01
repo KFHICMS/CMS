@@ -15,6 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => EnsureUserRole::class,
         ]);
+                // Public invitation forms are authorised by the secret link, not by a login
+        // cookie, so there is no session for CSRF to protect. Excluding them avoids
+        // "page expired" (419) errors for phones that reopen an old tab.
+        $middleware->validateCsrfTokens(except: ['join/*']);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

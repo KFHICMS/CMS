@@ -1,27 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@extends('layouts.app', [
+    'active' => 'children',
+    'crumbs' => [
+        ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
+        ['label' => 'Children'],
+    ],
+])
 
-    <title>Child Management - KFHI-CMS</title>
+@section('title', 'Child Management')
+@section('heading', 'Child Management')
+@section('subheading', 'Manage registered children and their information.')
 
+@section('actions')
+    <a class="k-btn k-btn-primary" href="{{ route('children.create') }}">Add New Child</a>
+@endsection
+
+@push('head')
     <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f2f8f4;
-            color: #26352c;
-        }
-
         .page {
-            padding: 30px;
-            max-width: 1400px;
-            margin: auto;
+            padding: 0;
+            max-width: none;
+            margin: 0;
         }
 
         .header {
@@ -166,22 +164,10 @@
             }
         }
     </style>
-</head>
+@endpush
 
-<body>
-
+@section('content')
 <div class="page">
-
-    <div class="header">
-        <div>
-            <h1>Child Management</h1>
-            <p>Manage registered children and their information.</p>
-        </div>
-
-        <a href="{{ route('children.create') }}" class="add-btn">
-            + Add New Child
-        </a>
-    </div>
     <form method="GET" action="{{ route('children.index') }}" style="
     background:#ffffff;
     padding:20px;
@@ -493,6 +479,4 @@
     </div>
 
 </div>
-
-</body>
-</html>
+@endsection

@@ -192,10 +192,10 @@
     </div>
 
     <a
-        href="{{ url('/') }}"
+        href="{{ auth()->user()->role === 'enumerator' ? route('enumerator.dashboard') : url('/') }}"
         class="back-btn"
     >
-        Return to Home
+        {{ auth()->user()->role === 'enumerator' ? 'Back to My Events' : 'Return to Home' }}
     </a>
 
 </div>

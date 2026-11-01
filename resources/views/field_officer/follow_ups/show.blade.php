@@ -1,35 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Assigned Follow-up | KFHI CMS</title>
-    <style>
-        * { box-sizing: border-box; }
-        body { margin: 0; padding: 24px; background: #f3f8f4; color: #294432; font-family: Arial, sans-serif; }
-        main { max-width: 760px; margin: auto; }
-        .card { margin-top: 18px; padding: 22px; background: white; border: 1px solid #dfe9e1; border-radius: 12px; }
-        label { display: block; margin: 14px 0 6px; font-weight: 600; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #bdcbbf; border-radius: 7px; font: inherit; }
-        textarea { min-height: 140px; }
-        button { margin-top: 16px; padding: 10px 14px; border: 0; border-radius: 8px; color: white; background: #28733a; cursor: pointer; }
-        .muted { color: #65756a; }
-        .error { color: #a94343; }
-        a { color: #28733a; }
-        @media (max-width: 560px) { body { padding: 14px; } }
-    </style>
-</head>
-<body>
-<main>
-        @include('field_officer.partials.breadcrumbs', ['crumbs' => [
+@extends('layouts.app', [
+    'active' => 'follow-ups',
+    'crumbs' => [
         ['label' => 'Dashboard', 'url' => route('field_officer.dashboard')],
         ['label' => 'Follow-ups', 'url' => route('field_officer.follow_ups.index')],
-        ['label' => $followUp->category ?: 'Follow-up', 'url' => null],
-    ]])
-    @if (session('success')) <p class="card" role="status">{{ session('success') }}</p> @endif
+        ['label' => $followUp->category ?: 'Follow-up'],
+    ],
+])
+
+@section('title', $followUp->category ?: 'Follow-up')
+@section('heading', $followUp->category ?: 'Follow-up')
+@section('subheading', 'Assigned child follow-up')
+
+@section('content')
     <section class="card">
-        <p class="muted">Assigned child follow-up</p>
-        <h1>{{ $followUp->category ?: 'Follow-up' }}</h1>
+        
         <p><strong>Child Code:</strong> {{ $followUp->child->child_code }}</p>
         <p><strong>Child:</strong> {{ trim(implode(' ', array_filter([
             $followUp->child->first_name,
@@ -70,6 +54,4 @@
             <button type="submit">Save follow-up</button>
         </form>
     </section>
-</main>
-</body>
-</html>
+@endsection

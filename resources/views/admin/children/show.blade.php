@@ -1,27 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@extends('layouts.app', [
+    'active' => 'children',
+    'crumbs' => [
+        ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
+        ['label' => 'Children', 'url' => route('children.index')],
+        ['label' => 'Child Details'],
+    ],
+])
 
-    <title>Child Details - KFHI-CMS</title>
+@section('title', 'Child Details')
+@section('heading', 'Child Details')
+@section('subheading', 'View complete information about the registered child.')
 
+@section('actions')
+    <a class="k-btn k-btn-secondary" href="{{ route('children.index') }}">Back to Children</a>
+    <a class="k-btn k-btn-primary" href="{{ route('children.edit', $child) }}">Edit Child</a>
+    @if($child->qrCode && $child->qrCode->status === 'active')
+        <a class="k-btn k-btn-secondary" href="{{ route('children.qr.show', $child) }}">View QR Code</a>
+    @else
+        <form method="POST" action="{{ route('children.qr.generate', $child) }}">
+            @csrf
+            <button class="k-btn k-btn-primary" type="submit">Generate QR Code</button>
+        </form>
+    @endif
+@endsection
+
+@push('head')
     <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f2f8f4;
-            color: #26352c;
-        }
-
         .page {
-            max-width: 1100px;
-            margin: auto;
-            padding: 30px;
+            max-width: none;
+            margin: 0;
+            padding: 0;
         }
 
         .topbar {
@@ -216,90 +224,10 @@
     font-weight: bold;
 }
     </style>
-</head>
+@endpush
 
-<body>
-
+@section('content')
 <div class="page">
-
-    <div class="topbar">
-
-        <div>
-            <h1>Child Details</h1>
-            <p>View complete information about the registered child.</p>
-        </div>
-
-        <div class="actions">
-
-            <a
-                href="{{ route('children.index') }}"
-                class="btn back-btn"
-            >
-                ← Back
-            </a>
-
-            <a
-                href="{{ route('children.edit', $child) }}"
-                class="btn edit-btn"
-            >
-                Edit Child
-            </a>
-            @if($child->qrCode && $child->qrCode->status === 'active')
-
-<a
-    href="{{ route('children.qr.show', $child) }}"
-    style="
-        display:inline-flex;
-        align-items:center;
-        gap:8px;
-        padding:10px 16px;
-        background:#e8f5ec;
-        color:#2e7d4f;
-        border:1px solid #cde4d4;
-        border-radius:9px;
-        text-decoration:none;
-        font-weight:600;
-        font-size:13px;
-    "
->
-    ▣ View QR Code
-</a>
-
-@else
-
-<form
-    method="POST"
-    action="{{ route('children.qr.generate', $child) }}"
-    style="display:inline;"
->
-    @csrf
-
-    <button
-        type="submit"
-        style="
-            display:inline-flex;
-            align-items:center;
-            gap:8px;
-            padding:10px 16px;
-            background:#2e7d4f;
-            color:#ffffff;
-            border:none;
-            border-radius:9px;
-            font-weight:600;
-            font-size:13px;
-            cursor:pointer;
-        "
-    >
-        ▣ Generate QR Code
-    </button>
-</form>
-
-@endif
-        </div>
-
-    </div>
-
-
     <div class="profile-card">
 
         <div class="profile-header">
@@ -673,6 +601,4 @@
 
 </div>
 </div>
-
-</body>
-</html>
+@endsection

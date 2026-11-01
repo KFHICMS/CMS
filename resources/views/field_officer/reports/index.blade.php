@@ -1,40 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Field Reports | KFHI CMS</title>
-    <style>
-        * { box-sizing: border-box; }
-        body { margin: 0; padding: 24px; background: #f3f8f4; color: #294432; font-family: Arial, sans-serif; }
-        main { max-width: 1100px; margin: auto; }
-        .card { margin-top: 18px; padding: 20px; background: white; border: 1px solid #dfe9e1; border-radius: 12px; }
-        form { display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); align-items: end; gap: 12px; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; }
-        input, select, button { width: 100%; padding: 10px; border: 1px solid #bdcbbf; border-radius: 7px; font: inherit; }
-        button { color: white; background: #28733a; cursor: pointer; border: 0; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 11px 8px; border-bottom: 1px solid #e5ece6; text-align: left; vertical-align: top; }
-        a { color: #28733a; }
-        .scroll { overflow-x: auto; }
-        .muted { color: #65756a; }
-        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-top: 18px; }
-        .stat { padding: 14px; background: white; border: 1px solid #dfe9e1; border-radius: 12px; }
-        .stat strong { display: block; font-size: 24px; }
-        .stat span { color: #65756a; font-size: 13px; }
-        @media (max-width: 700px) { body { padding: 14px; } }
-    </style>
-</head>
-<body>
-<main>
-        @include('field_officer.partials.breadcrumbs', ['crumbs' => [
+@extends('layouts.app', [
+    'active' => 'reports',
+    'crumbs' => [
         ['label' => 'Dashboard', 'url' => route('field_officer.dashboard')],
-        ['label' => 'Reports', 'url' => null],
-    ]])
-    <h1>My Field Reports</h1>
-    <p class="muted">Reports include only activity records you created for programs currently assigned to you.</p>
+        ['label' => 'Reports'],
+    ],
+])
+
+@section('title', 'My Field Reports')
+@section('heading', 'My Field Reports')
+@section('subheading', 'Reports include only activity records you created for programs currently assigned to you.')
+
+@section('content')
+ 
     <section class="card">
-        <form method="GET" action="{{ route('field_officer.reports.index') }}">
+        <form method="GET" action="{{ route('field_officer.reports.index') }}" class="filters">
             <div><label for="from">Activity date from</label><input id="from" type="date" name="from" value="{{ $validated['from'] ?? '' }}"></div>
             <div><label for="to">Activity date to</label><input id="to" type="date" name="to" value="{{ $validated['to'] ?? '' }}"></div>
             <div><label for="program_id">Program</label><select id="program_id" name="program_id">
@@ -92,6 +71,4 @@
         </table>
         {{ $submissions->links() }}
     </section>
-</main>
-</body>
-</html>
+@endsection

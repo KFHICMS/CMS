@@ -1,29 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@extends('layouts.app', [
+    'active' => 'events',
+    'crumbs' => [
+        ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
+        ['label' => 'Events', 'url' => route('events.index')],
+        ['label' => 'Create Event'],
+    ],
+])
 
-    <title>Create Event | KFHI-CMS</title>
+@section('title', 'Create Event')
+@section('heading', 'Create New Event')
+@section('subheading', 'Create an event and choose which features will be available.')
 
+@section('actions')
+    <a class="k-btn k-btn-secondary" href="{{ route('events.index') }}">Back to Events</a>
+@endsection
+
+@push('head')
     <style>
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: #f3f8f4;
-            color: #24352b;
-            min-height: 100vh;
         }
 
         .page {
-            max-width: 900px;
-            margin: auto;
-            padding: 35px 20px;
+            max-width: none;
+            margin: 0;
+            padding: 0;
         }
 
         .header {
@@ -245,26 +246,10 @@
             }
         }
     </style>
-</head>
+@endpush
 
-<body>
-
+@section('content')
 <div class="page">
-
-    <div class="header">
-
-        <a href="{{ route('events.index') }}" class="back">
-            ← Back to Events
-        </a>
-
-        <h1>Create New Event</h1>
-
-        <p class="subtitle">
-            Create an event and choose the features that will be available.
-        </p>
-
-    </div>
-
     <div class="card">
 
         @if($errors->any())
@@ -523,6 +508,4 @@
     </div>
 
 </div>
-
-</body>
-</html>
+@endsection

@@ -3,10 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Child;
-use App\Models\Question;
 use App\Models\Questionnaire;
 use App\Models\QuestionnaireResponse;
-use Illuminate\Database\Eloquent\Collection;
+use App\Services\AuditLogService;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,21 +16,27 @@ use Illuminate\View\View;
 
 class QuestionnaireResponseController extends Controller
 {
+    /** Session key holding the child an enumerator identified for a questionnaire. */
+    public const IDENTIFIED_SESSION = 'enumerator_questionnaire_child.';
+
+    public function __construct(private readonly AuditLogService $audit)
+    {
+    }
+
     /**
      * Show questionnaire for a child.
      */
     public function create(
         Questionnaire $questionnaire,
         Child $child
-    ): View {
+    ): View|RedirectResponse {
         $this->authorizeResponseAccess($questionnaire, $child);
 
-        $alreadyAnswered = QuestionnaireResponse::where(
-            'questionnaire_id',
-            $questionnaire->id
-        )
-            ->where('child_id', $child->id)
-            ->exists();
+        if ($redirect = $this->enumeratorGate($questionnaire, $child)) {
+            return $redirect;
+        }
+
+        $alreadyAnswered = $this->alreadyAnswered($questionnaire, $child);
 
         $questionnaire->load([
             'event',
@@ -58,28 +63,24 @@ class QuestionnaireResponseController extends Controller
     ): RedirectResponse {
         $this->authorizeResponseAccess($questionnaire, $child);
 
-        // Check duplicate response.
-        $alreadyAnswered = QuestionnaireResponse::where(
-            'questionnaire_id',
-            $questionnaire->id
-        )
-            ->where('child_id', $child->id)
-            ->exists();
+        if ($redirect = $this->enumeratorGate($questionnaire, $child)) {
+            return $redirect;
+        }
 
-        if ($alreadyAnswered) {
-            return redirect()
-                ->back()
-                ->with(
-                    'error',
-                    'This child has already answered this questionnaire.'
-                );
+        if ($this->alreadyAnswered($questionnaire, $child)) {
+            return $this->duplicate($questionnaire);
         }
 
         $questionnaire->load('questions.options');
-        $validated = $request->validate($this->validationRules($questionnaire->questions));
+
+        $validated = $request->validate(
+            $this->rulesFor($questionnaire),
+            [],
+            $this->attributesFor($questionnaire)
+        );
 
         try {
-            DB::transaction(function () use (
+            $response = DB::transaction(function () use (
                 $questionnaire,
                 $child,
                 $validated
@@ -93,41 +94,49 @@ class QuestionnaireResponseController extends Controller
                 ]);
 
                 foreach ($questionnaire->questions as $question) {
-                    $fieldName = 'question_'.$question->id;
-                    $answer = $validated[$fieldName] ?? null;
+                    $answer = $validated['question_' . $question->id] ?? null;
 
-                    $response->answers()->create([
-                        'question_id' => $question->id,
-                        'answer_text' => is_array($answer) ? null : $answer,
-                        'answer_json' => is_array($answer) ? $answer : null,
-                    ]);
+                    if (is_array($answer)) {
+                        $response->answers()->create([
+                            'question_id' => $question->id,
+                            'answer_text' => null,
+                            'answer_json' => array_values($answer),
+                        ]);
+                    } else {
+                        $response->answers()->create([
+                            'question_id' => $question->id,
+                            'answer_text' => $answer,
+                            'answer_json' => null,
+                        ]);
+                    }
                 }
-            });
-        } catch (UniqueConstraintViolationException $exception) {
-            if (! QuestionnaireResponse::query()
-                ->where('questionnaire_id', $questionnaire->id)
-                ->where('child_id', $child->id)
-                ->exists()) {
-                throw $exception;
-            }
 
+                return $response;
+            });
+        } catch (UniqueConstraintViolationException) {
+            // Two requests raced; the database unique index decided.
+            return $this->duplicate($questionnaire);
+        }
+
+        session()->forget(self::IDENTIFIED_SESSION . $questionnaire->id);
+
+        $this->audit->record(
+            $request,
+            'questionnaire_submitted',
+            'questionnaire_response',
+            $response->id,
+            'Questionnaire response submitted.'
+        );
+
+        if (auth()->user()->role === 'enumerator') {
             return redirect()
-                ->back()
-                ->with('error', 'This child has already answered this questionnaire.');
+                ->route('enumerator.events.questionnaires.show', [$questionnaire->event_id, $questionnaire])
+                ->with('success', 'Questionnaire submitted for child '.$child->child_code.'. You can scan the next child now.');
         }
 
         return redirect()
-            ->route(
-                'questionnaires.responses.success',
-                [
-                    $questionnaire,
-                    $child,
-                ]
-            )
-            ->with(
-                'success',
-                'Questionnaire submitted successfully.'
-            );
+            ->route('questionnaires.responses.success', [$questionnaire, $child])
+            ->with('success', 'Questionnaire submitted successfully.');
     }
 
     /**
@@ -142,6 +151,17 @@ class QuestionnaireResponseController extends Controller
             $child,
             requirePublished: false
         );
+
+        if (auth()->user()->role === 'enumerator') {
+            abort_unless(
+                QuestionnaireResponse::query()
+                    ->where('questionnaire_id', $questionnaire->id)
+                    ->where('child_id', $child->id)
+                    ->where('submitted_by', auth()->id())
+                    ->exists(),
+                404
+            );
+        }
 
         return view(
             'admin.events.questionnaires.responses.success',
@@ -158,7 +178,7 @@ class QuestionnaireResponseController extends Controller
         bool $requirePublished = true
     ): void {
         abort_unless(
-            (! $requirePublished || $questionnaire->status === 'published') &&
+            (!$requirePublished || $questionnaire->status === 'published') &&
                 $questionnaire->event?->enable_questionnaires &&
                 $child->status === 'active',
             404
@@ -166,18 +186,23 @@ class QuestionnaireResponseController extends Controller
 
         $user = auth()->user();
 
-        if ($user->role === 'enumerator') {
+        if ($user->role === 'field_officer') {
             abort_unless(
                 $questionnaire->event()
-                    ->whereHas('enumerators', fn ($query) => $query->whereKey($user->id))
-                    ->exists()
-                    && $questionnaire->event?->collectionState() === 'open',
+                    ->whereHas(
+                        'program.officers',
+                        fn ($query) => $query->where('users.id', $user->id)
+                    )
+                    ->exists(),
                 404
             );
-        } elseif ($user->role === 'field_officer') {
+        }
+
+        if ($user->role === 'enumerator') {
             abort_unless(
-                $questionnaire->event()
-                    ->whereHas('program.officers', fn ($query) => $query->whereKey($user->id))
+                $questionnaire->event
+                    ->enumerators()
+                    ->whereKey($user->id)
                     ->exists(),
                 404
             );
@@ -185,62 +210,141 @@ class QuestionnaireResponseController extends Controller
     }
 
     /**
-     * @param  Collection<int, Question>  $questions
-     * @return array<string, array<int, mixed>>
+     * Extra rules for enumerators: the event must be open, and the child must
+     * have been identified (QR or Child Code) for this questionnaire first.
      */
-    private function validationRules(Collection $questions): array
+    private function enumeratorGate(
+        Questionnaire $questionnaire,
+        Child $child
+    ): ?RedirectResponse {
+        if (auth()->user()->role !== 'enumerator') {
+            return null;
+        }
+
+        $event = $questionnaire->event;
+
+        if ($event->collectionState() !== 'open') {
+            return redirect()
+                ->route('enumerator.events.show', $event)
+                ->with('error', 'This event is not open for data collection.');
+        }
+
+        if (session(self::IDENTIFIED_SESSION . $questionnaire->id) !== $child->id) {
+            // A repeated submit after success should explain the duplicate,
+            // not ask the enumerator to identify the child again.
+            if ($this->alreadyAnswered($questionnaire, $child)) {
+                return $this->duplicate($questionnaire);
+            }
+
+            return redirect()
+                ->route('enumerator.events.questionnaires.show', [$event, $questionnaire])
+                ->with('error', 'Identify the child by scanning their QR code or entering their Child Code first.');
+        }
+
+        return null;
+    }
+
+    private function alreadyAnswered(Questionnaire $questionnaire, Child $child): bool
+    {
+        return QuestionnaireResponse::query()
+            ->where('questionnaire_id', $questionnaire->id)
+            ->where('child_id', $child->id)
+            ->exists();
+    }
+
+    private function duplicate(Questionnaire $questionnaire): RedirectResponse
+    {
+        session()->forget(self::IDENTIFIED_SESSION . $questionnaire->id);
+
+        $this->audit->record(
+            request(),
+            'questionnaire_duplicate',
+            'questionnaire_response',
+            $questionnaire->id,
+            'Duplicate questionnaire submission rejected.'
+        );
+
+        $message = 'This child has already answered this questionnaire.';
+
+        if (auth()->user()->role === 'enumerator') {
+            return redirect()
+                ->route('enumerator.events.questionnaires.show', [$questionnaire->event_id, $questionnaire])
+                ->with('error', $message);
+        }
+
+        return redirect()->back()->with('error', $message);
+    }
+
+    /**
+     * Validation rules built from each question's configured type.
+     */
+    private function rulesFor(Questionnaire $questionnaire): array
     {
         $rules = [];
 
-        foreach ($questions as $question) {
-            $field = 'question_'.$question->id;
-            $presence = $question->is_required ? ['required'] : ['nullable'];
-            $settings = $question->settings ?? [];
-            $allowedValues = $question->options
-                ->map(fn ($option) => $option->option_value ?? $option->option_label)
+        foreach ($questionnaire->questions as $question) {
+            $field = 'question_' . $question->id;
+            $presence = $question->is_required ? 'required' : 'nullable';
+            $allowed = $question->options
+                ->map(fn ($option) => (string) ($option->option_value ?? $option->option_label))
                 ->all();
-            $min = $settings['min'] ?? $settings['min_value'] ?? null;
-            $max = $settings['max'] ?? $settings['max_value'] ?? null;
 
-            $rules[$field] = match ($question->question_type) {
-                'text', 'textarea' => [...$presence, 'string', 'max:10000'],
-                'number' => [
-                    ...$presence,
-                    'numeric',
-                    ...($min !== null ? ['min:'.$min] : []),
-                    ...($max !== null ? ['max:'.$max] : []),
-                ],
-                'date' => [
-                    ...$presence,
-                    'date_format:Y-m-d',
-                    ...(isset($settings['min_date']) ? ['after_or_equal:'.$settings['min_date']] : []),
-                    ...(isset($settings['max_date']) ? ['before_or_equal:'.$settings['max_date']] : []),
-                ],
-                'time' => [...$presence, 'date_format:H:i'],
-                'radio', 'select', 'poll' => [
-                    ...$presence,
-                    'string',
-                    Rule::in($allowedValues),
-                ],
-                'checkbox' => [
-                    ...$presence,
-                    'array',
-                    ...($question->is_required ? ['min:1'] : []),
-                ],
-                'yes_no' => [...$presence, 'string', Rule::in(['Yes', 'No'])],
-                'rating' => [...$presence, 'integer', 'min:1', 'max:5'],
-                default => ['prohibited'],
-            };
+            switch ($question->question_type) {
+                case 'checkbox':
+                    $rules[$field] = [$presence, 'array'];
+                    $rules[$field . '.*'] = ['string', 'distinct', Rule::in($allowed)];
+                    break;
 
-            if ($question->question_type === 'checkbox') {
-                $rules[$field.'.*'] = [
-                    'string',
-                    'distinct:strict',
-                    Rule::in($allowedValues),
-                ];
+                case 'radio':
+                case 'select':
+                case 'poll':
+                    $rules[$field] = [$presence, 'string', Rule::in($allowed)];
+                    break;
+
+                case 'yes_no':
+                    $rules[$field] = [$presence, 'string', Rule::in(['Yes', 'No'])];
+                    break;
+
+                case 'rating':
+                    $rules[$field] = [$presence, 'integer', 'between:1,5'];
+                    break;
+
+                case 'number':
+                    $rules[$field] = [$presence, 'numeric', 'between:-1000000000,1000000000'];
+                    break;
+
+                case 'date':
+                    $rules[$field] = [$presence, 'date_format:Y-m-d'];
+                    break;
+
+                case 'time':
+                    $rules[$field] = [$presence, 'date_format:H:i'];
+                    break;
+
+                case 'textarea':
+                    $rules[$field] = [$presence, 'string', 'max:5000'];
+                    break;
+
+                default: // text
+                    $rules[$field] = [$presence, 'string', 'max:255'];
             }
         }
 
         return $rules;
+    }
+
+    /**
+     * Use the question text in error messages instead of "question 12".
+     */
+    private function attributesFor(Questionnaire $questionnaire): array
+    {
+        $attributes = [];
+
+        foreach ($questionnaire->questions as $question) {
+            $attributes['question_' . $question->id] = $question->question_text;
+            $attributes['question_' . $question->id . '.*'] = $question->question_text;
+        }
+
+        return $attributes;
     }
 }

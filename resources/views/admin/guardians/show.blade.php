@@ -1,27 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@extends('layouts.app', [
+    'active' => 'guardians',
+    'crumbs' => [
+        ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
+        ['label' => 'Guardians', 'url' => route('guardians.index')],
+        ['label' => 'Guardian Details'],
+    ],
+])
 
-    <title>Guardian Details - KFHI CMS</title>
+@section('title', 'Guardian Details')
+@section('heading', 'Guardian Details')
+@section('subheading', $guardian->full_name)
 
+@section('actions')
+    <a class="k-btn k-btn-secondary" href="{{ route('guardians.index') }}">Back to Guardians</a>
+    <a class="k-btn k-btn-primary" href="{{ route('guardians.edit', $guardian) }}">Edit Guardian</a>
+@endsection
+
+@push('head')
     <style>
         * {
             box-sizing: border-box;
         }
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f3f8f4;
-            color: #294536;
-        }
-
         .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 30px;
+            max-width: none;
+            margin: 0;
+            padding: 0;
         }
 
         .topbar {
@@ -224,40 +228,10 @@
             }
         }
     </style>
-</head>
+@endpush
 
-<body>
-
+@section('content')
 <div class="container">
-
-    <div class="topbar">
-
-        <div>
-            <h1>Guardian Details</h1>
-            <p>View complete guardian information.</p>
-        </div>
-
-        <div class="actions">
-
-            <a
-                href="{{ route('guardians.index') }}"
-                class="btn btn-back"
-            >
-                ← Back
-            </a>
-
-            <a
-                href="{{ route('guardians.edit', $guardian) }}"
-                class="btn btn-edit"
-            >
-                Edit Guardian
-            </a>
-
-        </div>
-
-    </div>
-
-
     {{-- Guardian Profile --}}
     <div class="profile-card">
 
@@ -431,6 +405,4 @@
     </div>
 
 </div>
-
-</body>
-</html>
+@endsection

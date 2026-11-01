@@ -1,12 +1,30 @@
 
 
-@section('content')
+@extends('layouts.app', [
+    'active' => 'events',
+    'crumbs' => [
+        ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
+        ['label' => 'Events', 'url' => route('events.index')],
+        ['label' => $event->title, 'url' => route('events.show', $event)],
+        ['label' => $questionnaire->title, 'url' => route('events.questionnaires.show', [$event, $questionnaire])],
+        ['label' => 'Edit Questionnaire'],
+    ],
+])
 
+@section('title', 'Edit Questionnaire')
+@section('heading', 'Edit Questionnaire')
+@section('subheading', $questionnaire->title)
+
+@section('actions')
+    <a class="k-btn k-btn-secondary" href="{{ route('events.questionnaires.show', [$event, $questionnaire]) }}">Back to Questionnaire</a>
+@endsection
+
+@push('head')
 <style>
     .questionnaire-page {
-        max-width: 850px;
-        margin: 40px auto;
-        padding: 20px;
+        max-width: none;
+        margin: 0;
+        padding: 0;
     }
 
     .questionnaire-card {
@@ -117,16 +135,12 @@
         }
     }
 </style>
+@endpush
 
+@section('content')
 <div class="questionnaire-page">
 
     <div class="questionnaire-card">
-
-        <h1 class="page-title">Edit Questionnaire</h1>
-
-        <p class="page-subtitle">
-            Update the questionnaire details and publication status.
-        </p>
 
         @if ($errors->any())
             <div class="error-box">
@@ -234,4 +248,4 @@
     </div>
 
 </div>
-
+@endsection

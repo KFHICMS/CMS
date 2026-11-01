@@ -17,6 +17,10 @@ class Questionnaire extends Model
         'description',
         'status',
         'created_by',
+        'invitation_id',
+        'respondent_name',
+        'idempotency_key',
+        'review_status',
     ];
 
     public function event(): BelongsTo
@@ -34,7 +38,16 @@ class Questionnaire extends Model
         return $this->hasMany(Question::class);
     }
     public function responses(): HasMany
-{
+   {
     return $this->hasMany(QuestionnaireResponse::class);
 }
+    public function invitations(): HasMany
+    {
+        return $this->hasMany(EnumeratorInvitation::class);
+    }
+
+    public function invitation(): BelongsTo
+    {
+        return $this->belongsTo(EnumeratorInvitation::class, 'invitation_id');
+    }
 }
